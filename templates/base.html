@@ -40,6 +40,9 @@
                     <i class="fas fa-search" aria-hidden="true"></i> Search
                 </a>
                 {% if current_user.is_authenticated %}
+                <a href="/favorites" class="nav-link" aria-label="Your favorites">
+                    <i class="fas fa-heart" aria-hidden="true"></i> Favorites
+                </a>
                 <a href="/upload" class="nav-link" aria-label="Upload a car">
                     <i class="fas fa-upload" aria-hidden="true"></i> Upload Car
                 </a>

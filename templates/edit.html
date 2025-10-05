@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+{% block title %}Edit Car - AutoSlo{% endblock %}
+{% block content %}
+
+<!-- Edit Header -->
+<div class="upload-header">
+    <h1>
+        <i class="fas fa-edit" aria-hidden="true"></i>
+        Edit Car Listing
+    </h1>
+    <p>Update the details below to modify your car listing</p>
+</div>
+
+<!-- Edit Form -->
+<form class="upload-form-modern" method="POST" enctype="multipart/form-data">
+    
+    <!-- Section 1: Basic Information -->
+    <div class="form-section">
+        <h2 class="section-title">
+            <span class="section-number">1</span>
+            <span>Basic Information</span>
+        </h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="make">Make <span class="required">*</span></label>
+                <input type="text" id="make" name="make" value="{{ car.make }}" placeholder="e.g., Toyota" required aria-required="true">
+            </div>
+            <div class="form-group">
+                <label for="model">Model <span class="required">*</span></label>
+                <input type="text" id="model" name="model" value="{{ car.model }}" placeholder="e.g., Camry" required aria-required="true">
+            </div>
+            <div class="form-group">
+                <label for="year">Year <span class="required">*</span></label>
+                <input type="number" id="year" name="year" value="{{ car.year }}" placeholder="2020" min="1900" max="2025" required aria-required="true">
+            </div>
+            <div class="form-group">
+                <label for="price">Price (USD) <span class="required">*</span></label>
+                <div class="input-prefix">
+                    <span>$</span>
+                    <input type="number" id="price" name="price" value="{{ car.price }}" placeholder="25000" min="0" required aria-required="true">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="engine">Engine</label>
+                <input type="text" id="engine" name="engine" value="{{ car.engine or '' }}" placeholder="e.g., 2.5L V6">
+            </div>
+            <div class="form-group">
+                <label for="mileage">Mileage (km)</label>
+                <div class="input-suffix">
+                    <input type="number" id="mileage" name="mileage" value="{{ car.mileage or '' }}" placeholder="50000" min="0">
+                    <span>km</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category">
+                    <option value="">Select category...</option>
+                    <option value="Sedan" {% if car.category == 'Sedan' %}selected{% endif %}>Sedan</option>
+                    <option value="SUV" {% if car.category == 'SUV' %}selected{% endif %}>SUV</option>
+                    <option value="Coupe" {% if car.category == 'Coupe' %}selected{% endif %}>Coupe</option>
+                    <option value="Truck" {% if car.category == 'Truck' %}selected{% endif %}>Truck</option>
+                    <option value="Van" {% if car.category == 'Van' %}selected{% endif %}>Van</option>
+                    <option value="Convertible" {% if car.category == 'Convertible' %}selected{% endif %}>Convertible</option>
+                    <option value="Hatchback" {% if car.category == 'Hatchback' %}selected{% endif %}>Hatchback</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="gearbox">Transmission</label>
+                <select id="gearbox" name="gearbox">
+                    <option value="">Select transmission...</option>
+                    <option value="Manual" {% if car.gearbox == 'Manual' %}selected{% endif %}>Manual</option>
+                    <option value="Automatic" {% if car.gearbox == 'Automatic' %}selected{% endif %}>Automatic</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="steering">Steering</label>
+                <select id="steering" name="steering">
+                    <option value="">Select steering...</option>
+                    <option value="Left" {% if car.steering == 'Left' %}selected{% endif %}>Left-hand drive</option>
+                    <option value="Right" {% if car.steering == 'Right' %}selected{% endif %}>Right-hand drive</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="drive">Drive Type</label>
+                <select id="drive" name="drive">
+                    <option value="">Select drive type...</option>
+                    <option value="Front" {% if car.drive == 'Front' %}selected{% endif %}>Front-wheel drive</option>
+                    <option value="Rear" {% if car.drive == 'Rear' %}selected{% endif %}>Rear-wheel drive</option>
+                    <option value="4x4" {% if car.drive == '4x4' %}selected{% endif %}>4x4 / AWD</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="doors">Number of Doors</label>
+                <select id="doors" name="doors">
+                    <option value="">Select doors...</option>
+                    <option value="2/3" {% if car.doors == '2/3' %}selected{% endif %}>2-3 doors</option>
+                    <option value="4/5" {% if car.doors == '4/5' %}selected{% endif %}>4-5 doors</option>
+                    <option value=">5" {% if car.doors == '>5' %}selected{% endif %}>More than 5</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tech_inspection">Technical Inspection</label>
+                <select id="tech_inspection" name="tech_inspection">
+                    <option value="">Select...</option>
+                    <option value="Yes" {% if car.tech_inspection %}selected{% endif %}>Yes</option>
+                    <option value="No" {% if not car.tech_inspection %}selected{% endif %}>No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="catalyst">Catalyst</label>
+                <select id="catalyst" name="catalyst">
+                    <option value="">Select...</option>
+                    <option value="Yes" {% if car.catalyst %}selected{% endif %}>Yes</option>
+                    <option value="No" {% if not car.catalyst %}selected{% endif %}>No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="color">Exterior Color</label>
+                <input type="text" id="color" name="color" value="{{ car.color or '' }}" placeholder="e.g., Black">
+            </div>
+            <div class="form-group">
+                <label for="interior_material">Interior Material</label>
+                <input type="text" id="interior_material" name="interior_material" value="{{ car.interior_material or '' }}" placeholder="e.g., Leather">
+            </div>
+            <div class="form-group">
+                <label for="interior_color">Interior Color</label>
+                <input type="text" id="interior_color" name="interior_color" value="{{ car.interior_color or '' }}" placeholder="e.g., Beige">
+            </div>
+            <div class="form-group form-group-full">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4" placeholder="Describe your car's condition, special features, and history...">{{ car.description or '' }}</textarea>
+                <span class="field-hint">Add details that will help buyers make a decision</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Section 2: Features -->
+    <div class="form-section">
+        <h2 class="section-title">
+            <span class="section-number">2</span>
+            <span>Features & Equipment</span>
+        </h2>
+        <div class="features-grid">
+            {% set car_features = car.get_features() %}
+            {% for feature in features_options %}
+            <label class="feature-checkbox">
+                <input type="checkbox" name="features" value="{{ feature }}" {% if feature in car_features %}checked{% endif %}>
+                <span>{{ feature }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Section 3: Images -->
+    <div class="form-section">
+        <h2 class="section-title">
+            <span class="section-number">3</span>
+            <span>Update Photos</span>
+        </h2>
+        
+        <!-- Current Images -->
+        {% set current_images = car.get_images() %}
+        {% if current_images %}
+        <div class="current-images">
+            <h3>Current Images:</h3>
+            <div class="current-images-grid">
+                {% for img in current_images %}
+                <div class="current-image-item">
+                    <img src="{{ url_for('static', filename=img) }}" alt="Car image {{ loop.index }}">
+                    <span class="image-label">Image {{ loop.index }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            <p class="field-hint">Upload new images below to replace all current images</p>
+        </div>
+        {% endif %}
+        
+        <div class="file-upload-area">
+            <input type="file" id="images" name="images" multiple accept="image/*" class="file-input" aria-label="Upload car images">
+            <label for="images" class="file-label" id="fileLabel">
+                <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
+                <span class="file-text">Click to upload new images (optional)</span>
+                <span class="file-hint">PNG, JPG up to 10MB each (Maximum 10 images)</span>
+            </label>
+        </div>
+        
+        <!-- Image Preview Grid -->
+        <div id="imagePreview" class="image-preview-grid"></div>
+    </div>
+    
+    <!-- Form Actions -->
+    <div class="form-actions">
+        <button type="submit" class="btn-modern btn-primary btn-large">
+            <i class="fas fa-save" aria-hidden="true"></i>
+            Update Listing
+        </button>
+        <a href="/car/{{ car.id }}" class="btn-modern btn-outline btn-large">
+            <i class="fas fa-times" aria-hidden="true"></i>
+            Cancel
+        </a>
+        <p class="form-note">Changes will be saved to your listing</p>
+    </div>
+</form>
+
+<!-- Image Preview Script (same as upload.html) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('images');
+    const previewGrid = document.getElementById('imagePreview');
+    const fileLabel = document.getElementById('fileLabel');
+    let selectedFiles = [];
+    
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            if (files.length > 0) {
+                selectedFiles = files.slice(0, 10);
+                displayPreviews();
+                const fileText = fileLabel.querySelector('.file-text');
+                fileText.textContent = `${selectedFiles.length} new image${selectedFiles.length > 1 ? 's' : ''} selected`;
+            }
+        });
+        
+        function displayPreviews() {
+            previewGrid.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'image-preview-item';
+                        previewItem.innerHTML = `
+                            <img src="${e.target.result}" alt="Preview ${index + 1}">
+                            <div class="image-preview-overlay">
+                                <span class="image-number">${index + 1}</span>
+                                <button type="button" class="remove-image" data-index="${index}" aria-label="Remove image">
+                                    <i class="fas fa-times" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <div class="image-name">${file.name}</div>
+                        `;
+                        previewGrid.appendChild(previewItem);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            if (selectedFiles.length > 0) {
+                previewGrid.style.display = 'grid';
+            }
+        }
+        
+        previewGrid.addEventListener('click', function(e) {
+            const removeBtn = e.target.closest('.remove-image');
+            if (removeBtn) {
+                const index = parseInt(removeBtn.dataset.index);
+                selectedFiles.splice(index, 1);
+                
+                const dt = new DataTransfer();
+                selectedFiles.forEach(file => dt.items.add(file));
+                fileInput.files = dt.files;
+                
+                if (selectedFiles.length > 0) {
+                    displayPreviews();
+                    const fileText = fileLabel.querySelector('.file-text');
+                    fileText.textContent = `${selectedFiles.length} new image${selectedFiles.length > 1 ? 's' : ''} selected`;
+                } else {
+                    previewGrid.innerHTML = '';
+                    previewGrid.style.display = 'none';
+                    const fileText = fileLabel.querySelector('.file-text');
+                    fileText.textContent = 'Click to upload new images (optional)';
+                }
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

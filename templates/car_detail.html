@@ -173,6 +173,18 @@
             
             <!-- Action Buttons -->
             <div class="car-actions">
+                {% if current_user.is_authenticated and current_user.id == car.user_id %}
+                <!-- Owner Actions -->
+                <a href="/edit_car/{{ car.id }}" class="btn-modern btn-primary btn-large">
+                    <i class="fas fa-edit" aria-hidden="true"></i>
+                    Edit Listing
+                </a>
+                <button class="btn-modern btn-outline btn-large" onclick="window.print()">
+                    <i class="fas fa-print" aria-hidden="true"></i>
+                    Print Details
+                </button>
+                {% else %}
+                <!-- Visitor Actions -->
                 <a href="tel:+123456789" class="btn-modern btn-primary btn-large">
                     <i class="fas fa-phone" aria-hidden="true"></i>
                     Contact Seller
@@ -181,10 +193,13 @@
                     <i class="fas fa-print" aria-hidden="true"></i>
                     Print Details
                 </button>
-                <button class="btn-modern btn-outline btn-large car-favorite-btn">
-                    <i class="far fa-heart" aria-hidden="true"></i>
-                    Save
+                {% if current_user.is_authenticated %}
+                <button class="btn-modern btn-outline btn-large car-favorite-btn {% if current_user.has_favorited(car) %}active{% endif %}" data-car-id="{{ car.id }}">
+                    <i class="{% if current_user.has_favorited(car) %}fas{% else %}far{% endif %} fa-heart" aria-hidden="true"></i>
+                    {% if current_user.has_favorited(car) %}Saved{% else %}Save{% endif %}
                 </button>
+                {% endif %}
+                {% endif %}
             </div>
             
             <!-- Seller Card -->
@@ -202,6 +217,27 @@
             </div>
         </div>
     </div>
+    
+    <!-- Videos Section -->
+    {% set videos = car.get_videos() %}
+    {% if videos %}
+    <div class="car-videos-section">
+        <h2>
+            <i class="fas fa-video" aria-hidden="true"></i>
+            Video Tour
+        </h2>
+        <div class="videos-grid">
+            {% for video in videos %}
+            <div class="video-item">
+                <video controls preload="metadata">
+                    <source src="{{ url_for('static', filename=video) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 </article>
 
 <!-- Image Gallery Script -->
@@ -241,14 +277,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Favorite button toggle
+    // Favorite button toggle with AJAX
     const favBtn = document.querySelector('.car-favorite-btn');
     if (favBtn) {
         favBtn.addEventListener('click', function() {
+            const carId = this.dataset.carId;
             const icon = this.querySelector('i');
-            icon.classList.toggle('far');
-            icon.classList.toggle('fas');
-            this.classList.toggle('active');
+            const button = this;
+            
+            fetch(`/toggle_favorite/${carId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update button state
+                if (data.favorited) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    button.classList.add('active');
+                    button.childNodes[2].textContent = 'Saved';
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    button.classList.remove('active');
+                    button.childNodes[2].textContent = 'Save';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to update favorites. Please try again.');
+            });
         });
     }
 });

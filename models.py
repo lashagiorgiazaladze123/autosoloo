@@ -1,6 +1,7 @@
 from app import db, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from sqlalchemy.orm import deferred
 import json
 
 # Association table for favorites (many-to-many relationship)
@@ -64,6 +65,7 @@ class Car(db.Model):
     interior_color = db.Column(db.String(64))
     description = db.Column(db.Text)
     images = db.Column(db.Text)  # JSON list of image paths
+    # videos = db.Column(db.Text, nullable=True, default=None)  # JSON list of video paths (optional) - Commented out until database migrated
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def get_features(self):
@@ -77,3 +79,17 @@ class Car(db.Model):
 
     def set_images(self, images_list):
         self.images = json.dumps(images_list)
+    
+    def get_videos(self):
+        try:
+            return json.loads(self.videos) if self.videos else []
+        except (AttributeError, TypeError):
+            # Handle case where videos column doesn't exist yet
+            return []
+    
+    def set_videos(self, videos_list):
+        try:
+            self.videos = json.dumps(videos_list)
+        except AttributeError:
+            # Silently skip if videos column doesn't exist
+            pass

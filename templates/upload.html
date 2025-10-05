@@ -133,6 +133,25 @@
         <div id="imagePreview" class="image-preview-grid"></div>
     </div>
     
+    <!-- Section 3: Videos -->
+    <div class="form-section">
+        <h2 class="section-title">
+            <span class="section-number">3</span>
+            <span>Upload Videos (Optional)</span>
+        </h2>
+        <div class="file-upload-area">
+            <input type="file" id="videos" name="videos" multiple accept="video/*" class="file-input" aria-label="Upload car videos">
+            <label for="videos" class="file-label" id="videoLabel">
+                <i class="fas fa-video" aria-hidden="true"></i>
+                <span class="file-text">Click to upload video files</span>
+                <span class="file-hint">MP4, MOV, AVI up to 50MB each (Maximum 3 videos)</span>
+            </label>
+        </div>
+        
+        <!-- Video Preview Grid -->
+        <div id="videoPreview" class="image-preview-grid"></div>
+    </div>
+    
     <!-- Form Actions -->
     <div class="form-actions">
         <button type="submit" class="btn-modern btn-primary btn-large">
@@ -272,6 +291,80 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileText.textContent = `${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''} selected`;
             }
         }
+    }
+    
+    // Video Preview Functionality
+    const videoInput = document.getElementById('videos');
+    const videoPreviewGrid = document.getElementById('videoPreview');
+    const videoLabel = document.getElementById('videoLabel');
+    let selectedVideos = [];
+    
+    if (videoInput) {
+        videoInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            if (files.length > 0) {
+                selectedVideos = files.slice(0, 3); // Limit to 3 videos
+                displayVideoPreview();
+                const videoText = videoLabel.querySelector('.file-text');
+                videoText.textContent = `${selectedVideos.length} video${selectedVideos.length > 1 ? 's' : ''} selected`;
+            }
+        });
+        
+        function displayVideoPreview() {
+            videoPreviewGrid.innerHTML = '';
+            
+            selectedVideos.forEach((file, index) => {
+                if (file.type.startsWith('video/')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'image-preview-item';
+                        previewItem.innerHTML = `
+                            <video src="${e.target.result}" class="video-preview"></video>
+                            <div class="image-preview-overlay">
+                                <span class="image-number">${index + 1}</span>
+                                <button type="button" class="remove-video" data-index="${index}" aria-label="Remove video">
+                                    <i class="fas fa-times" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <div class="image-name"><i class="fas fa-video"></i> ${file.name}</div>
+                        `;
+                        videoPreviewGrid.appendChild(previewItem);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            if (selectedVideos.length > 0) {
+                videoPreviewGrid.style.display = 'grid';
+            }
+        }
+        
+        videoPreviewGrid.addEventListener('click', function(e) {
+            const removeBtn = e.target.closest('.remove-video');
+            if (removeBtn) {
+                const index = parseInt(removeBtn.dataset.index);
+                selectedVideos.splice(index, 1);
+                
+                const dt = new DataTransfer();
+                selectedVideos.forEach(file => dt.items.add(file));
+                videoInput.files = dt.files;
+                
+                if (selectedVideos.length > 0) {
+                    displayVideoPreview();
+                    const videoText = videoLabel.querySelector('.file-text');
+                    videoText.textContent = `${selectedVideos.length} video${selectedVideos.length > 1 ? 's' : ''} selected`;
+                } else {
+                    videoPreviewGrid.innerHTML = '';
+                    videoPreviewGrid.style.display = 'none';
+                    const videoText = videoLabel.querySelector('.file-text');
+                    videoText.textContent = 'Click to upload video files';
+                }
+            }
+        });
     }
 });
 </script>

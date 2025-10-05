@@ -169,7 +169,7 @@ def upload():
         if features:
             car.set_features(features)
 
-        # Handle image uploads
+        # Handle image uploads (max 10)
         images = []
         for file in request.files.getlist('images'):
             if file and file.filename:
@@ -178,9 +178,26 @@ def upload():
                 file.save(filepath)
                 # Store relative path for templates
                 images.append(f'uploads/{filename}')
+                if len(images) >= 10:
+                    break
         
         if images:
             car.set_images(images)
+        
+        # Handle video uploads (max 3) - Temporarily disabled until database migrated
+        # videos = []
+        # for file in request.files.getlist('videos'):
+        #     if file and file.filename:
+        #         filename = secure_filename(file.filename)
+        #         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        #         file.save(filepath)
+        #         # Store relative path for templates
+        #         videos.append(f'uploads/{filename}')
+        #         if len(videos) >= 3:
+        #             break
+        # 
+        # if videos:
+        #     car.set_videos(videos)
 
         db.session.add(car)
         db.session.commit()
@@ -194,6 +211,99 @@ def upload():
 def profile():
     cars = current_user.cars.all()
     return render_template('profile.html', cars=cars)
+
+@app.route('/edit_car/<int:car_id>', methods=['GET', 'POST'])
+@login_required
+def edit_car(car_id):
+    car = Car.query.get_or_404(car_id)
+    
+    # Check if user owns this car
+    if car.user_id != current_user.id:
+        flash('Unauthorized to edit this car')
+        return redirect(url_for('profile'))
+    
+    if request.method == 'POST':
+        # Update basic fields
+        car.make = request.form.get('make', '')
+        car.model = request.form.get('model', '')
+        
+        year = request.form.get('year', '0')
+        price = request.form.get('price', '0')
+        mileage = request.form.get('mileage', '0')
+        
+        # Safe conversions
+        try:
+            car.year = int(year) if year else 0
+        except ValueError:
+            car.year = 0
+        
+        try:
+            car.price = float(price) if price else 0.0
+        except ValueError:
+            car.price = 0.0
+        
+        try:
+            car.mileage = int(mileage) if mileage else 0
+        except ValueError:
+            car.mileage = 0
+        
+        car.engine = request.form.get('engine', '')
+        car.category = request.form.get('category', '')
+        car.gearbox = request.form.get('gearbox', '')
+        car.steering = request.form.get('steering', '')
+        car.drive = request.form.get('drive', '')
+        car.doors = request.form.get('doors', '')
+        
+        tech_inspection_value = request.form.get('tech_inspection', '')
+        catalyst_value = request.form.get('catalyst', '')
+        car.tech_inspection = tech_inspection_value == 'Yes' if tech_inspection_value else False
+        car.catalyst = catalyst_value == 'Yes' if catalyst_value else False
+        
+        car.color = request.form.get('color', '')
+        car.interior_material = request.form.get('interior_material', '')
+        car.interior_color = request.form.get('interior_color', '')
+        car.description = request.form.get('description', '')
+        
+        # Update features
+        features = request.form.getlist('features')
+        if features:
+            car.set_features(features)
+        
+        # Handle new image uploads (max 10)
+        new_images = []
+        for file in request.files.getlist('images'):
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                new_images.append(f'uploads/{filename}')
+                if len(new_images) >= 10:
+                    break
+        
+        # If new images uploaded, update; otherwise keep existing
+        if new_images:
+            car.set_images(new_images)
+        
+        # Handle new video uploads (max 3) - Temporarily disabled until database migrated
+        # new_videos = []
+        # for file in request.files.getlist('videos'):
+        #     if file and file.filename:
+        #         filename = secure_filename(file.filename)
+        #         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        #         file.save(filepath)
+        #         new_videos.append(f'uploads/{filename}')
+        #         if len(new_videos) >= 3:
+        #             break
+        # 
+        # # If new videos uploaded, update; otherwise keep existing
+        # if new_videos:
+        #     car.set_videos(new_videos)
+        
+        db.session.commit()
+        flash('Car updated successfully!')
+        return redirect(url_for('car_detail', car_id=car.id))
+    
+    return render_template('edit.html', car=car, features_options=FEATURES_OPTIONS)
 
 @app.route('/delete_car/<int:car_id>', methods=['POST'])
 @login_required
