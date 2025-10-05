@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% block title %}Home - AutoSlo Premium Car Marketplace{% endblock %}
+{% block content %}
+
+<!-- Enhanced Hero Section -->
+<section class="hero-section" role="region" aria-label="Welcome section">
+    <div class="hero-content">
+        <h1 class="hero-title">
+            <span class="hero-title-main">Find Your Dream Car</span>
+            <span class="hero-title-sub">Premium vehicles at your fingertips</span>
+        </h1>
+        <p class="hero-subtitle">Discover thousands of quality cars from trusted sellers. Your perfect ride is just a search away.</p>
+        <div class="hero-actions">
+            <a href="/search" class="btn-modern btn-primary btn-large">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                Browse All Cars
+            </a>
+            <a href="/upload" class="btn-modern btn-outline btn-large">
+                <i class="fas fa-upload" aria-hidden="true"></i>
+                Sell Your Car
+            </a>
+        </div>
+    </div>
+    
+    <!-- Hero Stats -->
+    <div class="hero-stats">
+        <div class="stat-item">
+            <div class="stat-number">{{ cars|length }}+</div>
+            <div class="stat-label">Active Listings</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">500+</div>
+            <div class="stat-label">Happy Customers</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">50+</div>
+            <div class="stat-label">Car Brands</div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Cars Section -->
+<section class="featured-section" aria-label="Featured cars">
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="fas fa-star" aria-hidden="true"></i>
+            Featured Vehicles
+        </h2>
+        <p class="section-subtitle">Explore our hand-picked selection of premium cars</p>
+    </div>
+    
+    {% if cars %}
+    <div class="cars-grid">
+        {% for car in cars %}
+        <article class="car-card-modern" itemscope itemtype="https://schema.org/Car">
+            <!-- Car Image -->
+            <div class="car-image-wrapper">
+                {% if car.get_images() %}
+                <img 
+                    src="{{ url_for('static', filename=car.get_images()[0]) }}" 
+                    alt="{{ car.make }} {{ car.model }} {{ car.year }}" 
+                    class="car-image"
+                    loading="lazy"
+                    itemprop="image">
+                {% else %}
+                <div class="car-image-placeholder">
+                    <i class="fas fa-car" aria-hidden="true"></i>
+                </div>
+                {% endif %}
+                
+                <!-- Car Badge -->
+                <span class="car-badge">
+                    <i class="fas fa-certificate" aria-hidden="true"></i> Featured
+                </span>
+                
+                <!-- Favorite Button (placeholder) -->
+                <button class="car-favorite" aria-label="Add to favorites" title="Add to favorites">
+                    <i class="far fa-heart" aria-hidden="true"></i>
+                </button>
+            </div>
+            
+            <!-- Car Content -->
+            <div class="car-content">
+                <h3 class="car-title" itemprop="name">
+                    {{ car.make }} {{ car.model }}
+                    <span class="car-year">{{ car.year }}</span>
+                </h3>
+                
+                <!-- Car Price -->
+                <div class="car-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                    <span itemprop="price">${{ "{:,.0f}".format(car.price) }}</span>
+                    <meta itemprop="priceCurrency" content="USD">
+                </div>
+                
+                <!-- Car Specs -->
+                <div class="car-specs">
+                    {% if car.engine %}
+                    <span class="spec-item" title="Engine">
+                        <i class="fas fa-cog" aria-hidden="true"></i>
+                        {{ car.engine }}
+                    </span>
+                    {% endif %}
+                    {% if car.mileage %}
+                    <span class="spec-item" title="Mileage">
+                        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                        {{ "{:,.0f}".format(car.mileage) }} km
+                    </span>
+                    {% endif %}
+                    {% if car.category %}
+                    <span class="spec-item" title="Category">
+                        <i class="fas fa-tag" aria-hidden="true"></i>
+                        {{ car.category }}
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <!-- Car Description -->
+                {% if car.description %}
+                <p class="car-description">{{ car.description[:100] }}{% if car.description|length > 100 %}...{% endif %}</p>
+                {% endif %}
+                
+                <!-- View Details Button -->
+                <a href="/car/{{ car.id }}" class="btn-modern btn-primary" aria-label="View details for {{ car.make }} {{ car.model }}">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                    View Details
+                </a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state-modern">
+        <div class="empty-icon">
+            <i class="fas fa-car-side" aria-hidden="true"></i>
+        </div>
+        <h2>No Cars Available Yet</h2>
+        <p>Be the first to list your car on our marketplace!</p>
+        <a href="/upload" class="btn-modern btn-primary">
+            <i class="fas fa-upload" aria-hidden="true"></i>
+            Upload Your Car
+        </a>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Features Section -->
+<section class="features-section" aria-label="Why choose AutoSlo">
+    <h2 class="section-title text-center">Why Choose AutoSlo?</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-shield-alt" aria-hidden="true"></i>
+            </div>
+            <h3>Verified Listings</h3>
+            <p>Every car is verified for authenticity and quality before listing.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-hand-holding-usd" aria-hidden="true"></i>
+            </div>
+            <h3>Best Prices</h3>
+            <p>Competitive pricing with transparent cost breakdowns.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-headset" aria-hidden="true"></i>
+            </div>
+            <h3>24/7 Support</h3>
+            <p>Our dedicated team is always here to help you.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-sync-alt" aria-hidden="true"></i>
+            </div>
+            <h3>Easy Process</h3>
+            <p>Simple buying and selling process with quick transactions.</p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

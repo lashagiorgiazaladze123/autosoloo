@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% block title %}My Favorites - AutoSlo{% endblock %}
+{% block content %}
+
+<!-- Favorites Header -->
+<div class="page-header">
+    <h1>
+        <i class="fas fa-heart" aria-hidden="true"></i>
+        My Favorite Cars
+    </h1>
+    <p>Your saved cars for quick access</p>
+</div>
+
+<!-- Favorites Section -->
+<section class="favorites-section">
+    {% if cars %}
+    <div class="results-header">
+        <h2>{{ cars|length }} Saved Car{% if cars|length != 1 %}s{% endif %}</h2>
+    </div>
+    
+    <div class="cars-grid">
+        {% for car in cars %}
+        <article class="car-card-modern" itemscope itemtype="https://schema.org/Car">
+            <div class="car-image-wrapper">
+                {% if car.get_images() %}
+                <img 
+                    src="{{ url_for('static', filename=car.get_images()[0]) }}" 
+                    alt="{{ car.make }} {{ car.model }} {{ car.year }}" 
+                    class="car-image"
+                    loading="lazy"
+                    itemprop="image">
+                {% else %}
+                <div class="car-image-placeholder">
+                    <i class="fas fa-car" aria-hidden="true"></i>
+                </div>
+                {% endif %}
+                
+                <span class="car-badge">
+                    <i class="fas fa-star" aria-hidden="true"></i> Favorite
+                </span>
+                
+                <button class="car-favorite active" data-car-id="{{ car.id }}" aria-label="Remove from favorites" title="Remove from favorites">
+                    <i class="fas fa-heart" aria-hidden="true"></i>
+                </button>
+            </div>
+            
+            <div class="car-content">
+                <h3 class="car-title" itemprop="name">
+                    {{ car.make }} {{ car.model }}
+                    <span class="car-year">{{ car.year }}</span>
+                </h3>
+                
+                <div class="car-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                    <span itemprop="price">${{ "{:,.0f}".format(car.price) }}</span>
+                    <meta itemprop="priceCurrency" content="USD">
+                </div>
+                
+                <div class="car-specs">
+                    {% if car.engine %}
+                    <span class="spec-item" title="Engine">
+                        <i class="fas fa-cog" aria-hidden="true"></i>
+                        {{ car.engine }}
+                    </span>
+                    {% endif %}
+                    {% if car.mileage %}
+                    <span class="spec-item" title="Mileage">
+                        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                        {{ "{:,.0f}".format(car.mileage) }} km
+                    </span>
+                    {% endif %}
+                    {% if car.gearbox %}
+                    <span class="spec-item" title="Transmission">
+                        <i class="fas fa-cogs" aria-hidden="true"></i>
+                        {{ car.gearbox }}
+                    </span>
+                    {% endif %}
+                </div>
+                
+                {% if car.description %}
+                <p class="car-description">{{ car.description[:100] }}{% if car.description|length > 100 %}...{% endif %}</p>
+                {% endif %}
+                
+                <a href="/car/{{ car.id }}" class="btn-modern btn-primary" aria-label="View details for {{ car.make }} {{ car.model }}">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                    View Details
+                </a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state-modern">
+        <div class="empty-icon">
+            <i class="fas fa-heart-broken" aria-hidden="true"></i>
+        </div>
+        <h2>No Favorites Yet</h2>
+        <p>Start adding cars to your favorites by clicking the heart icon on any car listing!</p>
+        <a href="/search" class="btn-modern btn-primary">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            Browse Cars
+        </a>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Favorites JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const favoriteButtons = document.querySelectorAll('.car-favorite');
+    
+    favoriteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const carId = this.dataset.carId;
+            const icon = this.querySelector('i');
+            const card = this.closest('.car-card-modern');
+            
+            fetch(`/toggle_favorite/${carId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'removed') {
+                    // Animate card removal
+                    card.style.animation = 'fadeOut 0.3s ease';
+                    setTimeout(() => {
+                        card.remove();
+                        
+                        // Check if no more favorites
+                        const remainingCars = document.querySelectorAll('.car-card-modern').length;
+                        if (remainingCars === 0) {
+                            location.reload(); // Reload to show empty state
+                        } else {
+                            // Update count
+                            const header = document.querySelector('.results-header h2');
+                            if (header) {
+                                header.textContent = `${remainingCars} Saved Car${remainingCars !== 1 ? 's' : ''}`;
+                            }
+                        }
+                    }, 300);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to update favorites. Please try again.');
+            });
+        });
+    });
+});
+</script>
+
+<style>
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+</style>
+
+{% endblock %}

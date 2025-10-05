@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Register - AutoSlo{% endblock %}
+{% block content %}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Auth Header -->
+        <div class="auth-header">
+            <div class="auth-icon">
+                <i class="fas fa-user-plus" aria-hidden="true"></i>
+            </div>
+            <h1>Create Account</h1>
+            <p>Join AutoSlo and start buying or selling cars</p>
+        </div>
+        
+        <!-- Register Form -->
+        <form method="POST" class="auth-form" novalidate>
+            <div class="form-group">
+                <label for="username" class="sr-only">Username</label>
+                <div class="input-icon">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="Choose a username" 
+                        required 
+                        aria-required="true"
+                        autocomplete="username"
+                        minlength="3">
+                </div>
+                <span class="field-hint">At least 3 characters</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="email" class="sr-only">Email</label>
+                <div class="input-icon">
+                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="Your email address" 
+                        required 
+                        aria-required="true"
+                        autocomplete="email">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="sr-only">Password</label>
+                <div class="input-icon">
+                    <i class="fas fa-lock" aria-hidden="true"></i>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Create a password" 
+                        required 
+                        aria-required="true"
+                        autocomplete="new-password"
+                        minlength="6">
+                </div>
+                <span class="field-hint">Minimum 6 characters</span>
+            </div>
+            
+            <!-- Terms & Conditions -->
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="terms" required aria-required="true">
+                    <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+                </label>
+            </div>
+            
+            <button type="submit" class="btn-full btn-modern btn-primary">
+                <i class="fas fa-user-plus" aria-hidden="true"></i>
+                Create Account
+            </button>
+        </form>
+        
+        <!-- Divider -->
+        <div class="auth-divider">
+            <span>or</span>
+        </div>
+        
+        <!-- Social Registration (Placeholder) -->
+        <div class="social-auth">
+            <button type="button" class="btn-social btn-google">
+                <i class="fab fa-google" aria-hidden="true"></i>
+                Sign up with Google
+            </button>
+        </div>
+        
+        <!-- Login Link -->
+        <div class="auth-link">
+            Already have an account? <a href="/login">Sign in instead</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

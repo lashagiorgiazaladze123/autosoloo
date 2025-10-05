@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% block title %}Search Cars - AutoSlo{% endblock %}
+{% block content %}
+
+<!-- Search Page Header -->
+<div class="page-header">
+    <h1>
+        <i class="fas fa-search" aria-hidden="true"></i>
+        Search Your Perfect Car
+    </h1>
+    <p>Use our advanced filters to find exactly what you're looking for</p>
+</div>
+
+<!-- Enhanced Search Form -->
+<form class="search-form" method="POST" role="search">
+    <div class="search-input-wrapper">
+        <i class="fas fa-car search-icon" aria-hidden="true"></i>
+        <input type="text" name="make" placeholder="Enter car make (e.g., Toyota, BMW)" class="search-input">
+    </div>
+    
+    <div class="search-input-wrapper">
+        <i class="fas fa-cogs search-icon" aria-hidden="true"></i>
+        <input type="text" name="model" placeholder="Enter car model (e.g., Camry, X5)" class="search-input">
+    </div>
+    
+    <details>
+        <summary>
+            <i class="fas fa-sliders-h" aria-hidden="true"></i>
+            Advanced Filters
+        </summary>
+        <div class="filter-grid">
+            <!-- Year -->
+            <div class="form-group">
+                <label>Min Year</label>
+                <input type="number" name="min_year" placeholder="2000">
+            </div>
+            <div class="form-group">
+                <label>Max Year</label>
+                <input type="number" name="max_year" placeholder="2025">
+            </div>
+            <!-- Price -->
+            <div class="form-group">
+                <label>Min Price</label>
+                <input type="number" name="min_price">
+            </div>
+            <div class="form-group">
+                <label>Max Price</label>
+                <input type="number" name="max_price">
+            </div>
+            <!-- Engine -->
+            <div class="form-group">
+                <label>Engine</label>
+                <input type="text" name="engine" placeholder="e.g., 2.0L">
+            </div>
+            <!-- Mileage -->
+            <div class="form-group">
+                <label>Min Mileage</label>
+                <input type="number" name="min_mileage">
+            </div>
+            <div class="form-group">
+                <label>Max Mileage</label>
+                <input type="number" name="max_mileage">
+            </div>
+            <!-- Category -->
+            <div class="form-group">
+                <label>Category</label>
+                <select name="category">
+                    <option value="">Any</option>
+                    <option value="Sedan">Sedan</option>
+                    <option value="SUV">SUV</option>
+                    <!-- Add more -->
+                </select>
+            </div>
+            <!-- Gearbox -->
+            <div class="form-group">
+                <label>Gearbox</label>
+                <select name="gearbox">
+                    <option value="">Any</option>
+                    <option value="Automatic">Automatic</option>
+                    <option value="Manual">Manual</option>
+                </select>
+            </div>
+            <!-- Steering -->
+            <div class="form-group">
+                <label>Steering</label>
+                <div>
+                    <label><input type="checkbox" name="steering" value="Left"> Left</label>
+                    <label><input type="checkbox" name="steering" value="Right"> Right</label>
+                </div>
+            </div>
+            <!-- Drive -->
+            <div class="form-group">
+                <label>Drive Wheels</label>
+                <div>
+                    <label><input type="checkbox" name="drive" value="Front"> Front</label>
+                    <label><input type="checkbox" name="drive" value="Rear"> Rear</label>
+                    <label><input type="checkbox" name="drive" value="4x4"> 4x4</label>
+                </div>
+            </div>
+            <!-- Doors -->
+            <div class="form-group">
+                <label>Doors</label>
+                <div>
+                    <label><input type="checkbox" name="doors" value="2/3"> 2/3</label>
+                    <label><input type="checkbox" name="doors" value="4/5"> 4/5</label>
+                    <label><input type="checkbox" name="doors" value=">5"> >5</label>
+                </div>
+            </div>
+            <!-- Tech Inspection -->
+            <div class="form-group">
+                <label>Tech Inspection</label>
+                <select name="tech_inspection">
+                    <option value="">Any</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <!-- Catalyst -->
+            <div class="form-group">
+                <label>Catalyst</label>
+                <select name="catalyst">
+                    <option value="">Any</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <!-- Features -->
+            <div class="form-group full-width">
+                <label>Additional Functions</label>
+                <div class="features-grid">
+                    {% for feature in features_options %}
+                    <label><input type="checkbox" name="features" value="{{ feature }}"> {{ feature }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Colors -->
+            <div class="form-group full-width">
+                <label>Car Color</label>
+                <select name="colors" multiple>
+                    <option value="All">All</option>
+                    <option value="White">White</option>
+                    <option value="Black">Black</option>
+                    <option value="Silver">Silver</option>
+                    <option value="Gray">Gray</option>
+                    <option value="Red">Red</option>
+                    <option value="Blue">Blue</option>
+                    <!-- Other colors -->
+                </select>
+            </div>
+            <!-- Interior Material -->
+            <div class="form-group">
+                <label>Interior Material</label>
+                <select name="interior_material">
+                    <option value="">Any</option>
+                    <option value="Fabric">Fabric</option>
+                    <option value="Leather">Leather</option>
+                    <option value="Artificial leather">Artificial leather</option>
+                    <option value="Combined">Combined</option>
+                    <option value="Alcantara">Alcantara</option>
+                </select>
+            </div>
+            <!-- Interior Colors -->
+            <div class="form-group full-width">
+                <label>Interior Color</label>
+                <select name="interior_colors" multiple>
+                    <option value="All">All</option>
+                    <option value="Black">Black</option>
+                    <option value="White">White</option>
+                    <option value="Gray">Gray</option>
+                    <option value="Brown">Brown</option>
+                    <option value="Beige">Beige</option>
+                    <option value="Red">Red</option>
+                    <option value="Blue">Blue</option>
+                    <option value="Yellow">Yellow</option>
+                    <option value="Orange">Orange</option>
+                    <option value="Burgundy">Burgundy</option>
+                    <option value="Golden">Golden</option>
+                </select>
+            </div>
+        </div>
+    </details>
+    <button type="submit" class="btn-modern btn-primary btn-large">
+        <i class="fas fa-filter" aria-hidden="true"></i>
+        Apply Filters
+    </button>
+</form>
+
+<!-- Search Results Section -->
+<section class="results-section" aria-label="Search results">
+    <div class="results-header">
+        <h2>
+            <i class="fas fa-list" aria-hidden="true"></i>
+            Search Results
+        </h2>
+        <span class="results-count">{{ cars|length }} car{% if cars|length != 1 %}s{% endif %} found</span>
+    </div>
+    
+    {% if cars %}
+    <div class="cars-grid">
+        {% for car in cars %}
+        <article class="car-card-modern" itemscope itemtype="https://schema.org/Car">
+            <div class="car-image-wrapper">
+                {% if car.get_images() %}
+                <img 
+                    src="{{ url_for('static', filename=car.get_images()[0]) }}" 
+                    alt="{{ car.make }} {{ car.model }} {{ car.year }}" 
+                    class="car-image"
+                    loading="lazy"
+                    itemprop="image">
+                {% else %}
+                <div class="car-image-placeholder">
+                    <i class="fas fa-car" aria-hidden="true"></i>
+                </div>
+                {% endif %}
+                
+                <span class="car-badge">
+                    <i class="fas fa-check-circle" aria-hidden="true"></i> Verified
+                </span>
+                
+                <button class="car-favorite" aria-label="Add to favorites" title="Add to favorites">
+                    <i class="far fa-heart" aria-hidden="true"></i>
+                </button>
+            </div>
+            
+            <div class="car-content">
+                <h3 class="car-title" itemprop="name">
+                    {{ car.make }} {{ car.model }}
+                    <span class="car-year">{{ car.year }}</span>
+                </h3>
+                
+                <div class="car-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                    <span itemprop="price">${{ "{:,.0f}".format(car.price) }}</span>
+                    <meta itemprop="priceCurrency" content="USD">
+                </div>
+                
+                <div class="car-specs">
+                    {% if car.engine %}
+                    <span class="spec-item" title="Engine">
+                        <i class="fas fa-cog" aria-hidden="true"></i>
+                        {{ car.engine }}
+                    </span>
+                    {% endif %}
+                    {% if car.mileage %}
+                    <span class="spec-item" title="Mileage">
+                        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                        {{ "{:,.0f}".format(car.mileage) }} km
+                    </span>
+                    {% endif %}
+                    {% if car.gearbox %}
+                    <span class="spec-item" title="Transmission">
+                        <i class="fas fa-cogs" aria-hidden="true"></i>
+                        {{ car.gearbox }}
+                    </span>
+                    {% endif %}
+                </div>
+                
+                {% if car.description %}
+                <p class="car-description">{{ car.description[:100] }}{% if car.description|length > 100 %}...{% endif %}</p>
+                {% endif %}
+                
+                <a href="/car/{{ car.id }}" class="btn-modern btn-primary" aria-label="View details for {{ car.make }} {{ car.model }}">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                    View Details
+                </a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state-modern">
+        <div class="empty-icon">
+            <i class="fas fa-search" aria-hidden="true"></i>
+        </div>
+        <h2>No Cars Found</h2>
+        <p>We couldn't find any cars matching your criteria. Try adjusting your filters or search terms.</p>
+        <a href="/search" class="btn-modern btn-outline">
+            <i class="fas fa-redo" aria-hidden="true"></i>
+            Reset Filters
+        </a>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

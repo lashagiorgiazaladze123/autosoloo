@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% block title %}Upload Car - AutoSlo{% endblock %}
+{% block content %}
+
+<!-- Upload Header -->
+<div class="upload-header">
+    <h1>
+        <i class="fas fa-car" aria-hidden="true"></i>
+        List Your Car
+    </h1>
+    <p>Fill in the details below to create your car listing. All required fields are marked with <span class="required">*</span></p>
+</div>
+
+<!-- Upload Form -->
+<form class="upload-form-modern" method="POST" enctype="multipart/form-data">
+    
+    <!-- Section 1: Basic Information -->
+    <div class="form-section">
+        <h2 class="section-title">
+            <span class="section-number">1</span>
+            <span>Basic Information</span>
+        </h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="make">Make <span class="required">*</span></label>
+                <input type="text" id="make" name="make" placeholder="e.g., Toyota" required aria-required="true">
+            </div>
+            <div class="form-group">
+                <label for="model">Model <span class="required">*</span></label>
+                <input type="text" id="model" name="model" placeholder="e.g., Camry" required aria-required="true">
+            </div>
+            <div class="form-group">
+                <label for="year">Year <span class="required">*</span></label>
+                <input type="number" id="year" name="year" placeholder="2020" min="1900" max="2025" required aria-required="true">
+            </div>
+            <div class="form-group">
+                <label for="price">Price (USD) <span class="required">*</span></label>
+                <div class="input-prefix">
+                    <span>$</span>
+                    <input type="number" id="price" name="price" placeholder="25000" min="0" required aria-required="true">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="engine">Engine</label>
+                <input type="text" id="engine" name="engine" placeholder="e.g., 2.5L V6">
+            </div>
+            <div class="form-group">
+                <label for="mileage">Mileage (km)</label>
+                <div class="input-suffix">
+                    <input type="number" id="mileage" name="mileage" placeholder="50000" min="0">
+                    <span>km</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category">
+                    <option value="">Select Category</option>
+                    <option value="Sedan">Sedan</option>
+                    <option value="SUV">SUV</option>
+                    <option value="Hatchback">Hatchback</option>
+                    <option value="Coupe">Coupe</option>
+                    <option value="Truck">Truck</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="gearbox">Transmission</label>
+                <select id="gearbox" name="gearbox">
+                    <option value="">Select Transmission</option>
+                    <option value="Automatic">Automatic</option>
+                    <option value="Manual">Manual</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="steering">Steering</label>
+                <select id="steering" name="steering">
+                    <option value="">Select Steering</option>
+                    <option value="Left">Left</option>
+                    <option value="Right">Right</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="drive">Drive Type</label>
+                <select id="drive" name="drive">
+                    <option value="">Select Drive Type</option>
+                    <option value="Front">Front</option>
+                    <option value="Rear">Rear</option>
+                    <option value="4x4">4x4</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="doors">Doors</label>
+                <select id="doors" name="doors">
+                    <option value="">Select Doors</option>
+                    <option value="2/3">2/3</option>
+                    <option value="4/5">4/5</option>
+                    <option value=">5">>5</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="color">Color</label>
+                <select id="color" name="color">
+                    <option value="">Select Color</option>
+                    <option value="White">White</option>
+                    <option value="Black">Black</option>
+                    <option value="Silver">Silver</option>
+                    <option value="Red">Red</option>
+                    <option value="Blue">Blue</option>
+                </select>
+            </div>
+            <div class="form-group full-width">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="6" placeholder="Describe your car..."></textarea>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Section 2: Images -->
+    <div class="form-section">
+        <h2 class="section-title">
+            <span class="section-number">2</span>
+            <span>Upload Photos</span>
+        </h2>
+        <div class="file-upload-area">
+            <input type="file" id="images" name="images" multiple accept="image/*" class="file-input" aria-label="Upload car images">
+            <label for="images" class="file-label" id="fileLabel">
+                <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
+                <span class="file-text">Click to upload or drag and drop</span>
+                <span class="file-hint">PNG, JPG up to 10MB each (Maximum 10 images)</span>
+            </label>
+        </div>
+        
+        <!-- Image Preview Grid -->
+        <div id="imagePreview" class="image-preview-grid"></div>
+    </div>
+    
+    <!-- Form Actions -->
+    <div class="form-actions">
+        <button type="submit" class="btn-modern btn-primary btn-large">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            Publish Listing
+        </button>
+        <p class="form-note">By publishing, you agree to our Terms of Service</p>
+    </div>
+</form>
+
+<!-- Image Preview Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('images');
+    const previewGrid = document.getElementById('imagePreview');
+    const fileLabel = document.getElementById('fileLabel');
+    let selectedFiles = [];
+    
+    if (fileInput) {
+        // Handle file selection
+        fileInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            if (files.length > 0) {
+                selectedFiles = files.slice(0, 10); // Limit to 10 images
+                displayPreviews();
+                
+                // Update label text
+                const fileText = fileLabel.querySelector('.file-text');
+                fileText.textContent = `${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''} selected`;
+            }
+        });
+        
+        // Display image previews
+        function displayPreviews() {
+            previewGrid.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'image-preview-item';
+                        previewItem.innerHTML = `
+                            <img src="${e.target.result}" alt="Preview ${index + 1}">
+                            <div class="image-preview-overlay">
+                                <span class="image-number">${index + 1}</span>
+                                <button type="button" class="remove-image" data-index="${index}" aria-label="Remove image">
+                                    <i class="fas fa-times" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <div class="image-name">${file.name}</div>
+                        `;
+                        previewGrid.appendChild(previewItem);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Show the preview grid
+            if (selectedFiles.length > 0) {
+                previewGrid.style.display = 'grid';
+            }
+        }
+        
+        // Handle image removal
+        previewGrid.addEventListener('click', function(e) {
+            const removeBtn = e.target.closest('.remove-image');
+            if (removeBtn) {
+                const index = parseInt(removeBtn.dataset.index);
+                selectedFiles.splice(index, 1);
+                
+                // Update file input
+                const dt = new DataTransfer();
+                selectedFiles.forEach(file => dt.items.add(file));
+                fileInput.files = dt.files;
+                
+                if (selectedFiles.length > 0) {
+                    displayPreviews();
+                    const fileText = fileLabel.querySelector('.file-text');
+                    fileText.textContent = `${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''} selected`;
+                } else {
+                    previewGrid.innerHTML = '';
+                    previewGrid.style.display = 'none';
+                    const fileText = fileLabel.querySelector('.file-text');
+                    fileText.textContent = 'Click to upload or drag and drop';
+                }
+            }
+        });
+        
+        // Drag and drop functionality
+        const uploadArea = fileLabel;
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            uploadArea.classList.add('drag-over');
+        }
+        
+        function unhighlight() {
+            uploadArea.classList.remove('drag-over');
+        }
+        
+        uploadArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = Array.from(dt.files);
+            
+            if (files.length > 0) {
+                selectedFiles = files.slice(0, 10);
+                
+                // Update file input
+                const dataTransfer = new DataTransfer();
+                selectedFiles.forEach(file => dataTransfer.items.add(file));
+                fileInput.files = dataTransfer.files;
+                
+                displayPreviews();
+                const fileText = fileLabel.querySelector('.file-text');
+                fileText.textContent = `${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''} selected`;
+            }
+        }
+    }
+});
+</script>
+
+{% endblock %}

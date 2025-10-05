@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% block title %}{{ car.make }} {{ car.model }} {{ car.year }} - AutoSlo{% endblock %}
+{% block content %}
+
+<!-- Breadcrumb Navigation -->
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <ol>
+        <li><a href="/"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+        <li><a href="/search">Search</a></li>
+        <li aria-current="page">{{ car.make }} {{ car.model }}</li>
+    </ol>
+</nav>
+
+<!-- Car Detail Container -->
+<article class="car-detail-container" itemscope itemtype="https://schema.org/Car">
+    <div class="car-detail-layout">
+        <!-- Image Gallery Section -->
+        <div class="car-gallery-section">
+            {% set images = car.get_images() %}
+            {% if images %}
+            <!-- Main Image Display -->
+            <div class="car-gallery-main">
+                <img 
+                    id="mainCarImage" 
+                    src="{{ url_for('static', filename=images[0]) }}" 
+                    alt="{{ car.make }} {{ car.model }} {{ car.year }}"
+                    itemprop="image"
+                    class="car-main-image">
+                
+                <!-- Gallery Controls -->
+                {% if images|length > 1 %}
+                <button class="gallery-nav gallery-prev" id="prevImage" aria-label="Previous image">
+                    <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                </button>
+                <button class="gallery-nav gallery-next" id="nextImage" aria-label="Next image">
+                    <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                </button>
+                <div class="gallery-counter">
+                    <span id="currentImageIndex">1</span> / {{ images|length }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- thumbnails -->
+            {% if images|length > 1 %}
+            <div class="car-thumbnails">
+                {% for img in images %}
+                <img 
+                    src="{{ url_for('static', filename=img) }}" 
+                    alt="Thumbnail {{ loop.index }}"
+                    class="car-thumbnail {% if loop.index == 1 %}active{% endif %}"
+                    data-index="{{ loop.index - 1 }}"
+                    loading="lazy">
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="car-no-image">
+                <i class="fas fa-car" aria-hidden="true"></i>
+                <p>No images available</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Car Information Section -->
+        <div class="car-info-section">
+            <!-- Header -->
+            <div class="car-detail-header">
+                <h1 itemprop="name">{{ car.make }} {{ car.model }}</h1>
+                <div class="car-meta">
+                    <span class="car-year">
+                        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                        {{ car.year }}
+                    </span>
+                    {% if car.category %}
+                    <span class="car-category">
+                        <i class="fas fa-tag" aria-hidden="true"></i>
+                        {{ car.category }}
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="car-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                    <span itemprop="price">${{ "{:,.0f}".format(car.price) }}</span>
+                    <meta itemprop="priceCurrency" content="USD">
+                </div>
+            </div>
+            
+            <!-- Specifications Grid -->
+            <div class="spec-grid">
+                {% if car.engine %}
+                <div class="spec-item">
+                    <div class="spec-icon"><i class="fas fa-cog" aria-hidden="true"></i></div>
+                    <div class="spec-text">
+                        <strong>{{ car.engine }}</strong>
+                        <span>Engine</span>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if car.mileage %}
+                <div class="spec-item">
+                    <div class="spec-icon"><i class="fas fa-tachometer-alt" aria-hidden="true"></i></div>
+                    <div class="spec-text">
+                        <strong>{{ "{:,.0f}".format(car.mileage) }} km</strong>
+                        <span>Mileage</span>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if car.gearbox %}
+                <div class="spec-item">
+                    <div class="spec-icon"><i class="fas fa-cogs" aria-hidden="true"></i></div>
+                    <div class="spec-text">
+                        <strong>{{ car.gearbox }}</strong>
+                        <span>Transmission</span>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if car.drive %}
+                <div class="spec-item">
+                    <div class="spec-icon"><i class="fas fa-road" aria-hidden="true"></i></div>
+                    <div class="spec-text">
+                        <strong>{{ car.drive }}</strong>
+                        <span>Drive Type</span>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if car.steering %}
+                <div class="spec-item">
+                    <div class="spec-icon"><i class="fas fa-steering-wheel" aria-hidden="true"></i></div>
+                    <div class="spec-text">
+                        <strong>{{ car.steering }}</strong>
+                        <span>Steering</span>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if car.doors %}
+                <div class="spec-item">
+                    <div class="spec-icon"><i class="fas fa-door-open" aria-hidden="true"></i></div>
+                    <div class="spec-text">
+                        <strong>{{ car.doors }}</strong>
+                        <span>Doors</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Description -->
+            {% if car.description %}
+            <div class="car-description-section">
+                <h2><i class="fas fa-align-left" aria-hidden="true"></i> Description</h2>
+                <p itemprop="description">{{ car.description }}</p>
+            </div>
+            {% endif %}
+            
+            <!-- Additional Features -->
+            {% if car.features %}
+            <div class="car-features-section">
+                <h2><i class="fas fa-list-check" aria-hidden="true"></i> Features</h2>
+                <div class="features-list">
+                    {% for feature in car.features.split(',') %}
+                    <span class="feature-badge">
+                        <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        {{ feature.strip() }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            <div class="car-actions">
+                <a href="tel:+123456789" class="btn-modern btn-primary btn-large">
+                    <i class="fas fa-phone" aria-hidden="true"></i>
+                    Contact Seller
+                </a>
+                <button class="btn-modern btn-outline btn-large" onclick="window.print()">
+                    <i class="fas fa-print" aria-hidden="true"></i>
+                    Print Details
+                </button>
+                <button class="btn-modern btn-outline btn-large car-favorite-btn">
+                    <i class="far fa-heart" aria-hidden="true"></i>
+                    Save
+                </button>
+            </div>
+            
+            <!-- Seller Card -->
+            <div class="seller-card">
+                <h3><i class="fas fa-user" aria-hidden="true"></i> Seller Information</h3>
+                <div class="seller-info">
+                    <div class="seller-avatar">
+                        <i class="fas fa-user-circle" aria-hidden="true"></i>
+                    </div>
+                    <div class="seller-details">
+                        <p class="seller-name">{{ car.owner.username if car.owner else 'Private Seller' }}</p>
+                        <p class="seller-label">Verified Seller</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Image Gallery Script -->
+<script>
+/* eslint-disable */
+/* jshint ignore:start */
+// @ts-nocheck
+document.addEventListener('DOMContentLoaded', function() {
+    // Jinja2 template syntax below - renders server-side to valid JavaScript
+    const images = {{ images|tojson if images else '[]'|safe }};
+    if (images.length > 1) {
+        let currentIndex = 0;
+        const mainImage = document.getElementById('mainCarImage');
+        const thumbnails = document.querySelectorAll('.car-thumbnail');
+        const counter = document.getElementById('currentImageIndex');
+        
+        function updateImage(index) {
+            currentIndex = index;
+            mainImage.src = "{{ url_for('static', filename='') }}" + images[index];
+            counter.textContent = index + 1;
+            
+            thumbnails.forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === index);
+            });
+        }
+        
+        document.getElementById('prevImage').addEventListener('click', () => {
+            updateImage((currentIndex - 1 + images.length) % images.length);
+        });
+        
+        document.getElementById('nextImage').addEventListener('click', () => {
+            updateImage((currentIndex + 1) % images.length);
+        });
+        
+        thumbnails.forEach((thumb, index) => {
+            thumb.addEventListener('click', () => updateImage(index));
+        });
+    }
+    
+    // Favorite button toggle
+    const favBtn = document.querySelector('.car-favorite-btn');
+    if (favBtn) {
+        favBtn.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            icon.classList.toggle('far');
+            icon.classList.toggle('fas');
+            this.classList.toggle('active');
+        });
+    }
+});
+/* jshint ignore:end */
+/* eslint-enable */
+</script>
+
+{% endblock %}
