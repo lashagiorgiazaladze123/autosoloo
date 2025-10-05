@@ -50,13 +50,15 @@ class Car(db.Model):
     model = db.Column(db.String(64))
     year = db.Column(db.Integer)
     price = db.Column(db.Float)
-    engine = db.Column(db.String(64))  # e.g., '2.0L'
+    engine_liters = db.Column(db.String(32))  # e.g., '2.0L'
+    engine_cylinders = db.Column(db.String(32))  # e.g., 'V6', '4-cylinder'
+    fuel_type = db.Column(db.String(32))  # 'Gasoline', 'Diesel', 'Electric', etc.
     mileage = db.Column(db.Integer)
     category = db.Column(db.String(64))  # e.g., 'Sedan'
     gearbox = db.Column(db.String(32))  # 'Automatic', 'Manual'
     steering = db.Column(db.String(32))  # 'Left', 'Right'
     drive = db.Column(db.String(32))  # 'Front', 'Rear', '4x4'
-    doors = db.Column(db.String(32))  # '2/3', '4/5', '>5'
+    doors = db.Column(db.String(32))  # '2', '3', '4', '5', '>5'
     tech_inspection = db.Column(db.Boolean)
     catalyst = db.Column(db.Boolean)
     features = db.Column(db.Text)  # JSON list of features

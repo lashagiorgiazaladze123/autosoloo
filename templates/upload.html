@@ -5,14 +5,28 @@
 <!-- Upload Header -->
 <div class="upload-header">
     <h1>
-        <i class="fas fa-car" aria-hidden="true"></i>
-        List Your Car
+        <i class="fas fa-plus-circle" aria-hidden="true"></i>
+        Create Your Car Listing
     </h1>
-    <p>Fill in the details below to create your car listing. All required fields are marked with <span class="required">*</span></p>
+    <p class="header-subtitle">Select from the options below to create your professional car listing</p>
+    <div class="progress-bar">
+        <div class="progress-step active" data-step="1">
+            <span class="step-number">1</span>
+            <span class="step-label">Basic Info</span>
+        </div>
+        <div class="progress-step" data-step="2">
+            <span class="step-number">2</span>
+            <span class="step-label">Features</span>
+        </div>
+        <div class="progress-step" data-step="3">
+            <span class="step-number">3</span>
+            <span class="step-label">Media</span>
+        </div>
+    </div>
 </div>
 
 <!-- Upload Form -->
-<form class="upload-form-modern" method="POST" enctype="multipart/form-data">
+<form class="upload-form-modern" method="POST" enctype="multipart/form-data" id="uploadForm">
     
     <!-- Section 1: Basic Information -->
     <div class="form-section">
@@ -23,15 +37,27 @@
         <div class="form-grid">
             <div class="form-group">
                 <label for="make">Make <span class="required">*</span></label>
-                <input type="text" id="make" name="make" placeholder="e.g., Toyota" required aria-required="true">
+                <select id="make" name="make" required class="form-select" onchange="updateModels()">
+                    <option value="">Select Make</option>
+                    {% for make in car_makes %}
+                    <option value="{{ make }}">{{ make }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="model">Model <span class="required">*</span></label>
-                <input type="text" id="model" name="model" placeholder="e.g., Camry" required aria-required="true">
+                <select id="model" name="model" required class="form-select" disabled>
+                    <option value="">Select Make First</option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="year">Year <span class="required">*</span></label>
-                <input type="number" id="year" name="year" placeholder="2020" min="1900" max="2025" required aria-required="true">
+                <select id="year" name="year" required class="form-select">
+                    <option value="">Select Year</option>
+                    {% for year in years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="price">Price (USD) <span class="required">*</span></label>
@@ -41,8 +67,31 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="engine">Engine</label>
-                <input type="text" id="engine" name="engine" placeholder="e.g., 2.5L V6">
+                <label for="engine_liters">Engine Size</label>
+                <select id="engine_liters" name="engine_liters" class="form-select">
+                    <option value="">Select Engine Size</option>
+                    {% for size in engine_liters %}
+                    <option value="{{ size }}">{{ size }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="engine_cylinders">Engine Type</label>
+                <select id="engine_cylinders" name="engine_cylinders" class="form-select">
+                    <option value="">Select Engine Type</option>
+                    {% for type in engine_cylinders %}
+                    <option value="{{ type }}">{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fuel_type">Fuel Type</label>
+                <select id="fuel_type" name="fuel_type" class="form-select">
+                    <option value="">Select Fuel Type</option>
+                    {% for fuel in fuel_types %}
+                    <option value="{{ fuel }}">{{ fuel }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="mileage">Mileage (km)</label>
@@ -53,21 +102,20 @@
             </div>
             <div class="form-group">
                 <label for="category">Category</label>
-                <select id="category" name="category">
+                <select id="category" name="category" class="form-select">
                     <option value="">Select Category</option>
-                    <option value="Sedan">Sedan</option>
-                    <option value="SUV">SUV</option>
-                    <option value="Hatchback">Hatchback</option>
-                    <option value="Coupe">Coupe</option>
-                    <option value="Truck">Truck</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
                 <label for="gearbox">Transmission</label>
-                <select id="gearbox" name="gearbox">
+                <select id="gearbox" name="gearbox" class="form-select">
                     <option value="">Select Transmission</option>
-                    <option value="Automatic">Automatic</option>
-                    <option value="Manual">Manual</option>
+                    {% for gbox in gearbox_options %}
+                    <option value="{{ gbox }}">{{ gbox }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
@@ -91,9 +139,11 @@
                 <label for="doors">Doors</label>
                 <select id="doors" name="doors">
                     <option value="">Select Doors</option>
-                    <option value="2/3">2/3</option>
-                    <option value="4/5">4/5</option>
-                    <option value=">5">>5</option>
+                    <option value="2">2 doors</option>
+                    <option value="3">3 doors</option>
+                    <option value="4">4 doors</option>
+                    <option value="5">5 doors</option>
+                    <option value=">5">More than 5</option>
                 </select>
             </div>
             <div class="form-group">
@@ -171,19 +221,46 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedFiles = [];
     
     if (fileInput) {
+        // IMPORTANT: Set multiple attribute explicitly
+        fileInput.setAttribute('multiple', 'multiple');
+        
         // Handle file selection
         fileInput.addEventListener('change', function(e) {
-            const files = Array.from(e.target.files);
+            const newFiles = Array.from(e.target.files);
+            console.log(`Selected ${newFiles.length} files`);
             
-            if (files.length > 0) {
-                selectedFiles = files.slice(0, 10); // Limit to 10 images
+            if (newFiles.length > 0) {
+                // Add new files to existing selection
+                selectedFiles = [...selectedFiles, ...newFiles]
+                    .filter((file, index, self) => 
+                        index === self.findIndex(f => 
+                            f.name === file.name && 
+                            f.size === file.size && 
+                            f.lastModified === file.lastModified
+                        )
+                    )
+                    .slice(0, 10); // Limit to 10 images
+                
+                // Reset the file input before rebuilding the file list to avoid clearing later
+                fileInput.value = '';
+                updateFileInput();
                 displayPreviews();
                 
                 // Update label text
                 const fileText = fileLabel.querySelector('.file-text');
-                fileText.textContent = `${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''} selected`;
+                fileText.textContent = `${selectedFiles.length} image${selectedFiles.length !== 1 ? 's' : ''} selected`;
             }
         });
+        
+        // Update the file input with selected files
+        function updateFileInput() {
+            const dt = new DataTransfer();
+            selectedFiles.forEach(file => {
+                dt.items.add(file);
+            });
+            fileInput.files = dt.files;
+            console.log(`File input now has ${fileInput.files.length} files`);
+        }
         
         // Display image previews
         function displayPreviews() {
@@ -227,9 +304,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectedFiles.splice(index, 1);
                 
                 // Update file input
-                const dt = new DataTransfer();
-                selectedFiles.forEach(file => dt.items.add(file));
-                fileInput.files = dt.files;
+                updateFileInput();
                 
                 if (selectedFiles.length > 0) {
                     displayPreviews();
@@ -279,13 +354,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const files = Array.from(dt.files);
             
             if (files.length > 0) {
-                selectedFiles = files.slice(0, 10);
+                selectedFiles = [...selectedFiles, ...files]
+                    .filter((file, index, self) => 
+                        index === self.findIndex(f => 
+                            f.name === file.name && 
+                            f.size === file.size && 
+                            f.lastModified === file.lastModified
+                        )
+                    )
+                    .slice(0, 10);
                 
-                // Update file input
-                const dataTransfer = new DataTransfer();
-                selectedFiles.forEach(file => dataTransfer.items.add(file));
-                fileInput.files = dataTransfer.files;
-                
+                fileInput.value = '';
+                updateFileInput();
                 displayPreviews();
                 const fileText = fileLabel.querySelector('.file-text');
                 fileText.textContent = `${selectedFiles.length} image${selectedFiles.length > 1 ? 's' : ''} selected`;
@@ -365,6 +445,62 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+    }
+});
+
+// Dynamic Model Loading
+function updateModels() {
+    const makeSelect = document.getElementById('make');
+    const modelSelect = document.getElementById('model');
+    const selectedMake = makeSelect.value;
+    
+    // Clear current models
+    modelSelect.innerHTML = '<option value="">Loading...</option>';
+    modelSelect.disabled = true;
+    
+    if (!selectedMake) {
+        modelSelect.innerHTML = '<option value="">Select Make First</option>';
+        return;
+    }
+    
+    // Fetch models for selected make
+    fetch(`/api/get-models/${selectedMake}`)
+        .then(response => response.json())
+        .then(models => {
+            modelSelect.innerHTML = '<option value="">Select Model</option>';
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            });
+            modelSelect.disabled = false;
+        })
+        .catch(error => {
+            console.error('Error fetching models:', error);
+            modelSelect.innerHTML = '<option value="">Error loading models</option>';
+        });
+}
+
+// Add visual feedback for form selections
+document.querySelectorAll('.form-select').forEach(select => {
+    select.addEventListener('change', function() {
+        if (this.value) {
+            this.classList.add('has-value');
+        } else {
+            this.classList.remove('has-value');
+        }
+    });
+});
+
+// Form submit handler to verify files
+document.getElementById('uploadForm').addEventListener('submit', function(e) {
+    const fileInput = document.getElementById('images');
+    console.log(`Submitting form with ${fileInput.files.length} images`);
+    
+    // Log each file being submitted
+    for (let i = 0; i < fileInput.files.length; i++) {
+        console.log(`Image ${i + 1}: ${fileInput.files[i].name} (${fileInput.files[i].size} bytes)`);
     }
 });
 </script>

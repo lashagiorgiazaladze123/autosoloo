@@ -55,18 +55,22 @@
         <article class="car-card-modern" itemscope itemtype="https://schema.org/Car">
             <!-- Car Image -->
             <div class="car-image-wrapper">
-                {% if car.get_images() %}
-                <img 
-                    src="{{ url_for('static', filename=car.get_images()[0]) }}" 
-                    alt="{{ car.make }} {{ car.model }} {{ car.year }}" 
-                    class="car-image"
-                    loading="lazy"
-                    itemprop="image">
-                {% else %}
-                <div class="car-image-placeholder">
-                    <i class="fas fa-car" aria-hidden="true"></i>
-                </div>
-                {% endif %}
+                {% set car_images = car.get_images() %}
+                <a href="{{ url_for('car_detail', car_id=car.id) }}" class="car-image-link">
+                    {% if car_images and car_images|length > 0 %}
+                        <img 
+                            src="{{ url_for('static', filename=car_images[0]) }}" 
+                            alt="{{ car.make }} {{ car.model }} {{ car.year }}" 
+                            class="car-image"
+                            loading="lazy"
+                            onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/no-image.jpg') }}'"
+                            itemprop="image">
+                    {% else %}
+                        <div class="car-image-placeholder">
+                            <i class="fas fa-car" aria-hidden="true"></i>
+                        </div>
+                    {% endif %}
+                </a>
                 
                 <!-- Car Badge -->
                 <span class="car-badge">

@@ -1,10 +1,15 @@
 from app import app, db
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
 from models import User, Car
 from werkzeug.utils import secure_filename
 import os
 import json
+from car_data import (
+    CAR_MAKES_MODELS, ENGINE_LITERS, ENGINE_CYLINDERS, YEARS, 
+    CATEGORIES, GEARBOX_OPTIONS, STEERING_OPTIONS, DRIVE_OPTIONS,
+    DOORS_OPTIONS, COLORS, INTERIOR_MATERIALS, INTERIOR_COLORS, FUEL_TYPES
+)
 
 FEATURES_OPTIONS = [
     'Air conditioner', 'Climate control', 'Wheels', 'Electric windows', 'Rear view camera',
@@ -17,6 +22,12 @@ FEATURES_OPTIONS = [
 def index():
     cars = Car.query.all()
     return render_template('index.html', cars=cars)
+
+@app.route('/api/get-models/<make>')
+def get_models(make):
+    """API endpoint to get models for a specific make"""
+    models = CAR_MAKES_MODELS.get(make, [])
+    return jsonify(models)
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -108,7 +119,9 @@ def upload():
         price = request.form.get('price', '0')
         
         # Get optional fields with defaults
-        engine = request.form.get('engine', '')
+        engine_liters = request.form.get('engine_liters', '')
+        engine_cylinders = request.form.get('engine_cylinders', '')
+        fuel_type = request.form.get('fuel_type', '')
         mileage = request.form.get('mileage', '0')
         category = request.form.get('category', '')
         gearbox = request.form.get('gearbox', '')
@@ -148,7 +161,9 @@ def upload():
             model=model,
             year=year_int,
             price=price_float,
-            engine=engine,
+            engine_liters=engine_liters,
+            engine_cylinders=engine_cylinders,
+            fuel_type=fuel_type,
             mileage=mileage_int,
             category=category,
             gearbox=gearbox,
@@ -171,18 +186,28 @@ def upload():
 
         # Handle image uploads (max 10)
         images = []
-        for file in request.files.getlist('images'):
+        uploaded_files = request.files.getlist('images')
+        print(f"DEBUG: Number of files received: {len(uploaded_files)}")
+        
+        for file in uploaded_files:
             if file and file.filename:
-                filename = secure_filename(file.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                # Generate unique filename to avoid conflicts
+                import uuid
+                ext = os.path.splitext(file.filename)[1]
+                unique_filename = f"{uuid.uuid4()}{ext}"
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                
                 file.save(filepath)
                 # Store relative path for templates
-                images.append(f'uploads/{filename}')
+                images.append(f'uploads/{unique_filename}')
+                print(f"DEBUG: Saved image {len(images)}: {unique_filename}")
+                
                 if len(images) >= 10:
                     break
         
         if images:
             car.set_images(images)
+            print(f"DEBUG: Total images saved: {len(images)}")
         
         # Handle video uploads (max 3) - Temporarily disabled until database migrated
         # videos = []
@@ -204,7 +229,21 @@ def upload():
         flash('Car uploaded successfully!')
         return redirect(url_for('profile'))
 
-    return render_template('upload.html', features_options=FEATURES_OPTIONS)
+    return render_template('upload.html', 
+                         features_options=FEATURES_OPTIONS,
+                         car_makes=sorted(CAR_MAKES_MODELS.keys()),
+                         years=YEARS,
+                         categories=CATEGORIES,
+                         engine_liters=ENGINE_LITERS,
+                         engine_cylinders=ENGINE_CYLINDERS,
+                         fuel_types=FUEL_TYPES,
+                         gearbox_options=GEARBOX_OPTIONS,
+                         steering_options=STEERING_OPTIONS,
+                         drive_options=DRIVE_OPTIONS,
+                         doors_options=DOORS_OPTIONS,
+                         colors=COLORS,
+                         interior_materials=INTERIOR_MATERIALS,
+                         interior_colors=INTERIOR_COLORS)
 
 @app.route('/profile')
 @login_required
@@ -247,7 +286,9 @@ def edit_car(car_id):
         except ValueError:
             car.mileage = 0
         
-        car.engine = request.form.get('engine', '')
+        car.engine_liters = request.form.get('engine_liters', '')
+        car.engine_cylinders = request.form.get('engine_cylinders', '')
+        car.fuel_type = request.form.get('fuel_type', '')
         car.category = request.form.get('category', '')
         car.gearbox = request.form.get('gearbox', '')
         car.steering = request.form.get('steering', '')
@@ -303,7 +344,23 @@ def edit_car(car_id):
         flash('Car updated successfully!')
         return redirect(url_for('car_detail', car_id=car.id))
     
-    return render_template('edit.html', car=car, features_options=FEATURES_OPTIONS)
+    return render_template('edit.html', 
+                         car=car,
+                         features_options=FEATURES_OPTIONS,
+                         car_makes=sorted(CAR_MAKES_MODELS.keys()),
+                         car_models=CAR_MAKES_MODELS,
+                         years=YEARS,
+                         categories=CATEGORIES,
+                         engine_liters=ENGINE_LITERS,
+                         engine_cylinders=ENGINE_CYLINDERS,
+                         fuel_types=FUEL_TYPES,
+                         gearbox_options=GEARBOX_OPTIONS,
+                         steering_options=STEERING_OPTIONS,
+                         drive_options=DRIVE_OPTIONS,
+                         doors_options=DOORS_OPTIONS,
+                         colors=COLORS,
+                         interior_materials=INTERIOR_MATERIALS,
+                         interior_colors=INTERIOR_COLORS)
 
 @app.route('/delete_car/<int:car_id>', methods=['POST'])
 @login_required
