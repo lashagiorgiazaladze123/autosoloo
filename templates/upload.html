@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Upload Car - AutoSlo{% endblock %}
+{% block title %}Upload Car - AutoSolo{% endblock %}
 {% block content %}
 
 <!-- Upload Header -->
@@ -67,6 +67,11 @@
                 </div>
             </div>
             <div class="form-group">
+                <label for="contact_number">Contact Number</label>
+                <input type="tel" id="contact_number" name="contact_number" placeholder="e.g., +1 555 123 4567" pattern="[+0-9\s-]{6,20}">
+                <span class="field-hint">Buyers will use this number to contact you</span>
+            </div>
+            <div class="form-group">
                 <label for="engine_liters">Engine Size</label>
                 <select id="engine_liters" name="engine_liters" class="form-select">
                     <option value="">Select Engine Size</option>
@@ -95,9 +100,13 @@
             </div>
             <div class="form-group">
                 <label for="mileage">Mileage (km)</label>
-                <div class="input-suffix">
+                <div class="input-suffix mileage-input">
                     <input type="number" id="mileage" name="mileage" placeholder="50000" min="0">
-                    <span>km</span>
+                    <select id="mileage_unit" name="mileage_unit" class="mileage-unit-select">
+                        {% for value, label in mileage_unit_options %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
             <div class="form-group">
@@ -120,41 +129,56 @@
             </div>
             <div class="form-group">
                 <label for="steering">Steering</label>
-                <select id="steering" name="steering">
+                <select id="steering" name="steering" class="form-select">
                     <option value="">Select Steering</option>
-                    <option value="Left">Left</option>
-                    <option value="Right">Right</option>
+                    {% for option in steering_options %}
+                    <option value="{{ option }}">{{ option }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
                 <label for="drive">Drive Type</label>
-                <select id="drive" name="drive">
+                <select id="drive" name="drive" class="form-select">
                     <option value="">Select Drive Type</option>
-                    <option value="Front">Front</option>
-                    <option value="Rear">Rear</option>
-                    <option value="4x4">4x4</option>
+                    {% for option in drive_options %}
+                    <option value="{{ option }}">{{ option }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
                 <label for="doors">Doors</label>
-                <select id="doors" name="doors">
+                <select id="doors" name="doors" class="form-select">
                     <option value="">Select Doors</option>
-                    <option value="2">2 doors</option>
-                    <option value="3">3 doors</option>
-                    <option value="4">4 doors</option>
-                    <option value="5">5 doors</option>
-                    <option value=">5">More than 5</option>
+                    {% for option in doors_options %}
+                    <option value="{{ option }}">{{ option }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
                 <label for="color">Color</label>
                 <select id="color" name="color">
                     <option value="">Select Color</option>
-                    <option value="White">White</option>
-                    <option value="Black">Black</option>
-                    <option value="Silver">Silver</option>
-                    <option value="Red">Red</option>
-                    <option value="Blue">Blue</option>
+                    {% for color in colors %}
+                    <option value="{{ color }}">{{ color }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="interior_material">Interior Material</label>
+                <select id="interior_material" name="interior_material" class="form-select">
+                    <option value="">Select Material</option>
+                    {% for material in interior_materials %}
+                    <option value="{{ material }}">{{ material }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="interior_color">Interior Color</label>
+                <select id="interior_color" name="interior_color" class="form-select">
+                    <option value="">Select Interior Color</option>
+                    {% for interior_color in interior_colors %}
+                    <option value="{{ interior_color }}">{{ interior_color }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group full-width">

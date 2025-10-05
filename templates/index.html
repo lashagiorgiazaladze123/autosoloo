@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Home - AutoSlo Premium Car Marketplace{% endblock %}
+{% block title %}Home - AutoSolo Premium Car Marketplace{% endblock %}
 {% block content %}
 
 <!-- Enhanced Hero Section -->
@@ -97,16 +97,26 @@
                     <span itemprop="price">${{ "{:,.0f}".format(car.price) }}</span>
                     <meta itemprop="priceCurrency" content="USD">
                 </div>
+                <div class="car-card-metrics">
+                    <span title="Views"><i class="fas fa-eye" aria-hidden="true"></i> {{ car.views or 0 }}</span>
+                    <span title="Favorites"><i class="fas fa-heart" aria-hidden="true"></i> {{ car.favorites_count }}</span>
+                </div>
                 
                 <!-- Car Specs -->
                 <div class="car-specs">
-                    {% if car.engine %}
+                    {% set engine_summary = car.engine_display or car.engine %}
+                    {% if engine_summary %}
                     <span class="spec-item" title="Engine">
                         <i class="fas fa-cog" aria-hidden="true"></i>
-                        {{ car.engine }}
+                        {{ engine_summary }}
                     </span>
                     {% endif %}
-                    {% if car.mileage %}
+                    {% if car.mileage_display %}
+                    <span class="spec-item" title="Mileage">
+                        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                        {{ car.mileage_display }}
+                    </span>
+                    {% elif car.mileage %}
                     <span class="spec-item" title="Mileage">
                         <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
                         {{ "{:,.0f}".format(car.mileage) }} km
@@ -151,8 +161,8 @@
 </section>
 
 <!-- Features Section -->
-<section class="features-section" aria-label="Why choose AutoSlo">
-    <h2 class="section-title text-center">Why Choose AutoSlo?</h2>
+<section class="features-section" aria-label="Why choose AutoSolo">
+    <h2 class="section-title text-center">Why Choose AutoSolo?</h2>
     <div class="features-grid">
         <div class="feature-card">
             <div class="feature-icon">

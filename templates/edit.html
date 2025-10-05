@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Edit Car - AutoSlo{% endblock %}
+{% block title %}Edit Car - AutoSolo{% endblock %}
 {% block content %}
 
 <!-- Edit Header -->
@@ -41,63 +41,82 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="engine">Engine</label>
-                <input type="text" id="engine" name="engine" value="{{ car.engine or '' }}" placeholder="e.g., 2.5L V6">
+                <label for="contact_number">Contact Number</label>
+                <input type="tel" id="contact_number" name="contact_number" value="{{ car.contact_number or '' }}" placeholder="e.g., +1 555 123 4567" pattern="[+0-9\s-]{6,20}">
+                <span class="field-hint">Buyers will use this number to reach you</span>
+            </div>
+            <div class="form-group">
+                <label for="engine_liters">Engine Size</label>
+                <select id="engine_liters" name="engine_liters" class="form-select">
+                    <option value="">Select Engine Size</option>
+                    {% for size in engine_liters %}
+                    <option value="{{ size }}" {% if car.engine_liters == size %}selected{% endif %}>{{ size }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="engine_cylinders">Engine Type</label>
+                <select id="engine_cylinders" name="engine_cylinders" class="form-select">
+                    <option value="">Select Engine Type</option>
+                    {% for type in engine_cylinders %}
+                    <option value="{{ type }}" {% if car.engine_cylinders == type %}selected{% endif %}>{{ type }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="mileage">Mileage (km)</label>
-                <div class="input-suffix">
-                    <input type="number" id="mileage" name="mileage" value="{{ car.mileage or '' }}" placeholder="50000" min="0">
-                    <span>km</span>
+                <div class="input-suffix mileage-input">
+                    <input type="number" id="mileage" name="mileage" value="{{ car.mileage_for_display or car.mileage or '' }}" placeholder="50000" min="0">
+                    <select id="mileage_unit" name="mileage_unit" class="mileage-unit-select">
+                        {% for value, label in mileage_unit_options %}
+                        <option value="{{ value }}" {% if car.mileage_unit == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
             <div class="form-group">
                 <label for="category">Category</label>
-                <select id="category" name="category">
-                    <option value="">Select category...</option>
-                    <option value="Sedan" {% if car.category == 'Sedan' %}selected{% endif %}>Sedan</option>
-                    <option value="SUV" {% if car.category == 'SUV' %}selected{% endif %}>SUV</option>
-                    <option value="Coupe" {% if car.category == 'Coupe' %}selected{% endif %}>Coupe</option>
-                    <option value="Truck" {% if car.category == 'Truck' %}selected{% endif %}>Truck</option>
-                    <option value="Van" {% if car.category == 'Van' %}selected{% endif %}>Van</option>
-                    <option value="Convertible" {% if car.category == 'Convertible' %}selected{% endif %}>Convertible</option>
-                    <option value="Hatchback" {% if car.category == 'Hatchback' %}selected{% endif %}>Hatchback</option>
+                <select id="category" name="category" class="form-select">
+                    <option value="">Select Category</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if car.category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
                 <label for="gearbox">Transmission</label>
-                <select id="gearbox" name="gearbox">
-                    <option value="">Select transmission...</option>
-                    <option value="Manual" {% if car.gearbox == 'Manual' %}selected{% endif %}>Manual</option>
-                    <option value="Automatic" {% if car.gearbox == 'Automatic' %}selected{% endif %}>Automatic</option>
+                <select id="gearbox" name="gearbox" class="form-select">
+                    <option value="">Select Transmission</option>
+                    {% for option in gearbox_options %}
+                    <option value="{{ option }}" {% if car.gearbox == option %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
                 <label for="steering">Steering</label>
-                <select id="steering" name="steering">
-                    <option value="">Select steering...</option>
-                    <option value="Left" {% if car.steering == 'Left' %}selected{% endif %}>Left-hand drive</option>
-                    <option value="Right" {% if car.steering == 'Right' %}selected{% endif %}>Right-hand drive</option>
+                <select id="steering" name="steering" class="form-select">
+                    <option value="">Select Steering</option>
+                    {% for option in steering_options %}
+                    <option value="{{ option }}" {% if car.steering == option %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
                 <label for="drive">Drive Type</label>
-                <select id="drive" name="drive">
-                    <option value="">Select drive type...</option>
-                    <option value="Front" {% if car.drive == 'Front' %}selected{% endif %}>Front-wheel drive</option>
-                    <option value="Rear" {% if car.drive == 'Rear' %}selected{% endif %}>Rear-wheel drive</option>
-                    <option value="4x4" {% if car.drive == '4x4' %}selected{% endif %}>4x4 / AWD</option>
+                <select id="drive" name="drive" class="form-select">
+                    <option value="">Select Drive Type</option>
+                    {% for option in drive_options %}
+                    <option value="{{ option }}" {% if car.drive == option %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
                 <label for="doors">Number of Doors</label>
-                <select id="doors" name="doors">
-                    <option value="">Select doors...</option>
-                    <option value="2" {% if car.doors == '2' %}selected{% endif %}>2 doors</option>
-                    <option value="3" {% if car.doors == '3' %}selected{% endif %}>3 doors</option>
-                    <option value="4" {% if car.doors == '4' %}selected{% endif %}>4 doors</option>
-                    <option value="5" {% if car.doors == '5' %}selected{% endif %}>5 doors</option>
-                    <option value=">5" {% if car.doors == '>5' %}selected{% endif %}>More than 5</option>
+                <select id="doors" name="doors" class="form-select">
+                    <option value="">Select Doors</option>
+                    {% for option in doors_options %}
+                    <option value="{{ option }}" {% if car.doors == option %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
@@ -118,15 +137,30 @@
             </div>
             <div class="form-group">
                 <label for="color">Exterior Color</label>
-                <input type="text" id="color" name="color" value="{{ car.color or '' }}" placeholder="e.g., Black">
+                <select id="color" name="color" class="form-select">
+                    <option value="">Select Color</option>
+                    {% for color in colors %}
+                    <option value="{{ color }}" {% if car.color == color %}selected{% endif %}>{{ color }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="interior_material">Interior Material</label>
-                <input type="text" id="interior_material" name="interior_material" value="{{ car.interior_material or '' }}" placeholder="e.g., Leather">
+                <select id="interior_material" name="interior_material" class="form-select">
+                    <option value="">Select Material</option>
+                    {% for material in interior_materials %}
+                    <option value="{{ material }}" {% if car.interior_material == material %}selected{% endif %}>{{ material }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group">
                 <label for="interior_color">Interior Color</label>
-                <input type="text" id="interior_color" name="interior_color" value="{{ car.interior_color or '' }}" placeholder="e.g., Beige">
+                <select id="interior_color" name="interior_color" class="form-select">
+                    <option value="">Select Interior Color</option>
+                    {% for interior_color in interior_colors %}
+                    <option value="{{ interior_color }}" {% if car.interior_color == interior_color %}selected{% endif %}>{{ interior_color }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="form-group form-group-full">
                 <label for="description">Description</label>

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}{{ car.make }} {{ car.model }} {{ car.year }} - AutoSlo{% endblock %}
+{% block title %}{{ car.make }} {{ car.model }} {{ car.year }} - AutoSolo{% endblock %}
 {% block content %}
 
 <!-- Breadcrumb Navigation -->
@@ -74,38 +74,67 @@
         <div class="car-info-section">
             <!-- Header -->
             <div class="car-detail-header">
-                <h1 itemprop="name">{{ car.make }} {{ car.model }}</h1>
-                <div class="car-meta">
-                    <span class="car-year">
-                        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-                        {{ car.year }}
-                    </span>
-                    {% if car.category %}
-                    <span class="car-category">
-                        <i class="fas fa-tag" aria-hidden="true"></i>
-                        {{ car.category }}
-                    </span>
-                    {% endif %}
+                <div class="car-title-wrap">
+                    <h1 itemprop="name">{{ car.make }} {{ car.model }}</h1>
+                    <div class="car-meta">
+                        <span class="car-year">
+                            <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                            {{ car.year }}
+                        </span>
+                        {% if car.category %}
+                        <span class="car-category">
+                            <i class="fas fa-tag" aria-hidden="true"></i>
+                            {{ car.category }}
+                        </span>
+                        {% endif %}
+                        {% if car.fuel_type %}
+                        <span class="car-category">
+                            <i class="fas fa-gas-pump" aria-hidden="true"></i>
+                            {{ car.fuel_type }}
+                        </span>
+                        {% endif %}
+                        {% if car.gearbox %}
+                        <span class="car-category">
+                            <i class="fas fa-cogs" aria-hidden="true"></i>
+                            {{ car.gearbox }}
+                        </span>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="car-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                    <span itemprop="price">${{ "{:,.0f}".format(car.price) }}</span>
-                    <meta itemprop="priceCurrency" content="USD">
+                <div class="car-header-stats">
+                    <div class="car-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                        <span itemprop="price">${{ "{:,.0f}".format(car.price) }}</span>
+                        <meta itemprop="priceCurrency" content="USD">
+                    </div>
+                    <div class="listing-metrics">
+                        <span title="Total views"><i class="fas fa-eye" aria-hidden="true"></i> {{ car.views or 0 }}</span>
+                        <span title="Favorites"><i class="fas fa-heart" aria-hidden="true"></i> {{ total_favorites }}</span>
+                    </div>
                 </div>
             </div>
             
             <!-- Specifications Grid -->
             <div class="spec-grid">
-                {% if car.engine %}
+                {% set engine_summary = car.engine_display or car.engine %}
+                {% if engine_summary %}
                 <div class="spec-item">
                     <div class="spec-icon"><i class="fas fa-cog" aria-hidden="true"></i></div>
                     <div class="spec-text">
-                        <strong>{{ car.engine }}</strong>
+                        <strong>{{ engine_summary }}</strong>
                         <span>Engine</span>
                     </div>
                 </div>
                 {% endif %}
-                
-                {% if car.mileage %}
+
+                {% if car.mileage_display %}
+                <div class="spec-item">
+                    <div class="spec-icon"><i class="fas fa-tachometer-alt" aria-hidden="true"></i></div>
+                    <div class="spec-text">
+                        <strong>{{ car.mileage_display }}</strong>
+                        <span>Mileage</span>
+                    </div>
+                </div>
+                {% elif car.mileage %}
                 <div class="spec-item">
                     <div class="spec-icon"><i class="fas fa-tachometer-alt" aria-hidden="true"></i></div>
                     <div class="spec-text">
@@ -114,17 +143,7 @@
                     </div>
                 </div>
                 {% endif %}
-                
-                {% if car.gearbox %}
-                <div class="spec-item">
-                    <div class="spec-icon"><i class="fas fa-cogs" aria-hidden="true"></i></div>
-                    <div class="spec-text">
-                        <strong>{{ car.gearbox }}</strong>
-                        <span>Transmission</span>
-                    </div>
-                </div>
-                {% endif %}
-                
+
                 {% if car.drive %}
                 <div class="spec-item">
                     <div class="spec-icon"><i class="fas fa-road" aria-hidden="true"></i></div>
@@ -134,7 +153,7 @@
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if car.steering %}
                 <div class="spec-item">
                     <div class="spec-icon"><i class="fas fa-steering-wheel" aria-hidden="true"></i></div>
@@ -144,13 +163,35 @@
                     </div>
                 </div>
                 {% endif %}
-                
+
                 {% if car.doors %}
                 <div class="spec-item">
                     <div class="spec-icon"><i class="fas fa-door-open" aria-hidden="true"></i></div>
                     <div class="spec-text">
                         <strong>{{ car.doors }}</strong>
                         <span>Doors</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if car.color %}
+                <div class="spec-item">
+                    <div class="spec-icon"><i class="fas fa-palette" aria-hidden="true"></i></div>
+                    <div class="spec-text">
+                        <strong>{{ car.color }}</strong>
+                        <span>Exterior Color</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if car.interior_material or car.interior_color %}
+                <div class="spec-item">
+                    <div class="spec-icon"><i class="fas fa-chair" aria-hidden="true"></i></div>
+                    <div class="spec-text">
+                        <strong>
+                            {{ car.interior_material }}{% if car.interior_material and car.interior_color %} • {% endif %}{{ car.interior_color }}
+                        </strong>
+                        <span>Interior</span>
                     </div>
                 </div>
                 {% endif %}
@@ -165,14 +206,15 @@
             {% endif %}
             
             <!-- Additional Features -->
-            {% if car.features %}
+            {% set feature_list = car.get_features() %}
+            {% if feature_list %}
             <div class="car-features-section">
                 <h2><i class="fas fa-list-check" aria-hidden="true"></i> Features</h2>
                 <div class="features-list">
-                    {% for feature in car.features.split(',') %}
+                    {% for feature in feature_list %}
                     <span class="feature-badge">
                         <i class="fas fa-check-circle" aria-hidden="true"></i>
-                        {{ feature.strip() }}
+                        {{ feature }}
                     </span>
                     {% endfor %}
                 </div>
@@ -193,10 +235,17 @@
                 </button>
                 {% else %}
                 <!-- Visitor Actions -->
-                <a href="tel:+123456789" class="btn-modern btn-primary btn-large">
+                {% if car.contact_number %}
+                <a href="tel:{{ car.contact_number }}" class="btn-modern btn-primary btn-large">
                     <i class="fas fa-phone" aria-hidden="true"></i>
-                    Contact Seller
+                    Call {{ car.contact_number }}
                 </a>
+                {% else %}
+                <button class="btn-modern btn-primary btn-large" type="button" disabled>
+                    <i class="fas fa-phone-slash" aria-hidden="true"></i>
+                    Contact Info Unavailable
+                </button>
+                {% endif %}
                 <button class="btn-modern btn-outline btn-large" onclick="window.print()">
                     <i class="fas fa-print" aria-hidden="true"></i>
                     Print Details
@@ -219,7 +268,16 @@
                     </div>
                     <div class="seller-details">
                         <p class="seller-name">{{ car.owner.username if car.owner else 'Private Seller' }}</p>
-                        <p class="seller-label">Verified Seller</p>
+                        {% if car.contact_number %}
+                        <p class="seller-label">
+                            <i class="fas fa-phone" aria-hidden="true"></i>
+                            {{ car.contact_number }}
+                        </p>
+                        {% endif %}
+                        <p class="seller-label">
+                            <i class="fas fa-eye" aria-hidden="true"></i>
+                            {{ car.views or 0 }} total views
+                        </p>
                     </div>
                 </div>
             </div>

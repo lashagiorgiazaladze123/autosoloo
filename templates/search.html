@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Search Cars - AutoSlo{% endblock %}
+{% block title %}Search Cars - AutoSolo{% endblock %}
 {% block content %}
 
 <!-- Search Page Header -->
@@ -15,12 +15,12 @@
 <form class="search-form" method="POST" role="search">
     <div class="search-input-wrapper">
         <i class="fas fa-car search-icon" aria-hidden="true"></i>
-        <input type="text" name="make" placeholder="Enter car make (e.g., Toyota, BMW)" class="search-input">
+        <input type="text" name="make" placeholder="Enter car make (e.g., Toyota, BMW)" value="{{ selected_filters.make or '' }}" class="search-input">
     </div>
     
     <div class="search-input-wrapper">
         <i class="fas fa-cogs search-icon" aria-hidden="true"></i>
-        <input type="text" name="model" placeholder="Enter car model (e.g., Camry, X5)" class="search-input">
+        <input type="text" name="model" placeholder="Enter car model (e.g., Camry, X5)" value="{{ selected_filters.model or '' }}" class="search-input">
     </div>
     
     <details>
@@ -32,43 +32,43 @@
             <!-- Year -->
             <div class="form-group">
                 <label>Min Year</label>
-                <input type="number" name="min_year" placeholder="2000">
+                <input type="number" name="min_year" placeholder="2000" value="{{ selected_filters.min_year or '' }}">
             </div>
             <div class="form-group">
                 <label>Max Year</label>
-                <input type="number" name="max_year" placeholder="2025">
+                <input type="number" name="max_year" placeholder="2025" value="{{ selected_filters.max_year or '' }}">
             </div>
             <!-- Price -->
             <div class="form-group">
                 <label>Min Price</label>
-                <input type="number" name="min_price">
+                <input type="number" name="min_price" value="{{ selected_filters.min_price or '' }}">
             </div>
             <div class="form-group">
                 <label>Max Price</label>
-                <input type="number" name="max_price">
+                <input type="number" name="max_price" value="{{ selected_filters.max_price or '' }}">
             </div>
             <!-- Engine -->
             <div class="form-group">
                 <label>Engine</label>
-                <input type="text" name="engine" placeholder="e.g., 2.0L">
+                <input type="text" name="engine" placeholder="e.g., 2.0L" value="{{ selected_filters.engine or '' }}">
             </div>
             <!-- Mileage -->
             <div class="form-group">
                 <label>Min Mileage</label>
-                <input type="number" name="min_mileage">
+                <input type="number" name="min_mileage" value="{{ selected_filters.min_mileage or '' }}">
             </div>
             <div class="form-group">
                 <label>Max Mileage</label>
-                <input type="number" name="max_mileage">
+                <input type="number" name="max_mileage" value="{{ selected_filters.max_mileage or '' }}">
             </div>
             <!-- Category -->
             <div class="form-group">
                 <label>Category</label>
                 <select name="category">
                     <option value="">Any</option>
-                    <option value="Sedan">Sedan</option>
-                    <option value="SUV">SUV</option>
-                    <!-- Add more -->
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if selected_filters.category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <!-- Gearbox -->
@@ -76,36 +76,36 @@
                 <label>Gearbox</label>
                 <select name="gearbox">
                     <option value="">Any</option>
-                    <option value="Automatic">Automatic</option>
-                    <option value="Manual">Manual</option>
+                    {% for option in gearbox_options %}
+                    <option value="{{ option }}" {% if selected_filters.gearbox == option %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <!-- Steering -->
             <div class="form-group">
                 <label>Steering</label>
                 <div>
-                    <label><input type="checkbox" name="steering" value="Left"> Left</label>
-                    <label><input type="checkbox" name="steering" value="Right"> Right</label>
+                    {% for option in steering_options %}
+                    <label><input type="checkbox" name="steering" value="{{ option }}" {% if selected_filters.steering and option in selected_filters.steering %}checked{% endif %}> {{ option }}</label>
+                    {% endfor %}
                 </div>
             </div>
             <!-- Drive -->
             <div class="form-group">
                 <label>Drive Wheels</label>
                 <div>
-                    <label><input type="checkbox" name="drive" value="Front"> Front</label>
-                    <label><input type="checkbox" name="drive" value="Rear"> Rear</label>
-                    <label><input type="checkbox" name="drive" value="4x4"> 4x4</label>
+                    {% for option in drive_options %}
+                    <label><input type="checkbox" name="drive" value="{{ option }}" {% if selected_filters.drive and option in selected_filters.drive %}checked{% endif %}> {{ option }}</label>
+                    {% endfor %}
                 </div>
             </div>
             <!-- Doors -->
             <div class="form-group">
                 <label>Doors</label>
                 <div>
-                    <label><input type="checkbox" name="doors" value="2"> 2 doors</label>
-                    <label><input type="checkbox" name="doors" value="3"> 3 doors</label>
-                    <label><input type="checkbox" name="doors" value="4"> 4 doors</label>
-                    <label><input type="checkbox" name="doors" value="5"> 5 doors</label>
-                    <label><input type="checkbox" name="doors" value=">5"> More than 5</label>
+                    {% for option in door_options %}
+                    <label><input type="checkbox" name="doors" value="{{ option }}" {% if selected_filters.doors and option in selected_filters.doors %}checked{% endif %}> {{ option }}</label>
+                    {% endfor %}
                 </div>
             </div>
             <!-- Tech Inspection -->
@@ -113,17 +113,27 @@
                 <label>Tech Inspection</label>
                 <select name="tech_inspection">
                     <option value="">Any</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
+                    <option value="Yes" {% if selected_filters.tech_inspection == 'Yes' %}selected{% endif %}>Yes</option>
+                    <option value="No" {% if selected_filters.tech_inspection == 'No' %}selected{% endif %}>No</option>
                 </select>
-            </div>
             <!-- Catalyst -->
             <div class="form-group">
                 <label>Catalyst</label>
                 <select name="catalyst">
                     <option value="">Any</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
+                    {% for option in catalyst_options %}
+                    <option value="{{ option }}" {% if selected_filters.catalyst == option %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <!-- Fuel Type -->
+            <div class="form-group">
+                <label>Fuel Type</label>
+                <select name="fuel_type">
+                    <option value="">Any</option>
+                    {% for fuel in fuel_types %}
+                    <option value="{{ fuel }}" {% if selected_filters.fuel_type == fuel %}selected{% endif %}>{{ fuel }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <!-- Features -->
@@ -131,7 +141,7 @@
                 <label>Additional Functions</label>
                 <div class="features-grid">
                     {% for feature in features_options %}
-                    <label><input type="checkbox" name="features" value="{{ feature }}"> {{ feature }}</label>
+                    <label><input type="checkbox" name="features" value="{{ feature }}" {% if selected_filters.features and feature in selected_filters.features %}checked{% endif %}> {{ feature }}</label>
                     {% endfor %}
                 </div>
             </div>
@@ -139,14 +149,9 @@
             <div class="form-group full-width">
                 <label>Car Color</label>
                 <select name="colors" multiple>
-                    <option value="All">All</option>
-                    <option value="White">White</option>
-                    <option value="Black">Black</option>
-                    <option value="Silver">Silver</option>
-                    <option value="Gray">Gray</option>
-                    <option value="Red">Red</option>
-                    <option value="Blue">Blue</option>
-                    <!-- Other colors -->
+                    {% for color in color_options %}
+                    <option value="{{ color }}" {% if selected_filters.colors and color in selected_filters.colors %}selected{% endif %}>{{ color }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <!-- Interior Material -->
@@ -154,35 +159,23 @@
                 <label>Interior Material</label>
                 <select name="interior_material">
                     <option value="">Any</option>
-                    <option value="Fabric">Fabric</option>
-                    <option value="Leather">Leather</option>
-                    <option value="Artificial leather">Artificial leather</option>
-                    <option value="Combined">Combined</option>
-                    <option value="Alcantara">Alcantara</option>
+                    {% for material in interior_material_options %}
+                    <option value="{{ material }}" {% if selected_filters.interior_material == material %}selected{% endif %}>{{ material }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <!-- Interior Colors -->
             <div class="form-group full-width">
                 <label>Interior Color</label>
                 <select name="interior_colors" multiple>
-                    <option value="All">All</option>
-                    <option value="Black">Black</option>
-                    <option value="White">White</option>
-                    <option value="Gray">Gray</option>
-                    <option value="Brown">Brown</option>
-                    <option value="Beige">Beige</option>
-                    <option value="Red">Red</option>
-                    <option value="Blue">Blue</option>
-                    <option value="Yellow">Yellow</option>
-                    <option value="Orange">Orange</option>
-                    <option value="Burgundy">Burgundy</option>
-                    <option value="Golden">Golden</option>
+                    {% for interior_color in interior_color_options %}
+                    <option value="{{ interior_color }}" {% if selected_filters.interior_colors and interior_color in selected_filters.interior_colors %}selected{% endif %}>{{ interior_color }}</option>
+                    {% endfor %}
                 </select>
             </div>
         </div>
     </details>
     <button type="submit" class="btn-modern btn-primary btn-large">
-        <i class="fas fa-filter" aria-hidden="true"></i>
         Apply Filters
     </button>
 </form>
@@ -262,6 +255,13 @@
                 <p class="car-description">{{ car.description[:100] }}{% if car.description|length > 100 %}...{% endif %}</p>
                 {% endif %}
                 
+                <div class="car-card-metrics">
+                    <span title="Views"><i class="fas fa-eye" aria-hidden="true"></i> {{ car.views or 0 }}</span>
+                    <span title="Favorites"><i class="fas fa-heart" aria-hidden="true"></i> {{ car.favorites_count }}</span>
+                    {% if car.contact_number %}
+                    <span title="Contact"><i class="fas fa-phone" aria-hidden="true"></i> {{ car.contact_number }}</span>
+                    {% endif %}
+                </div>
                 <a href="/car/{{ car.id }}" class="btn-modern btn-primary" aria-label="View details for {{ car.make }} {{ car.model }}">
                     <i class="fas fa-info-circle" aria-hidden="true"></i>
                     View Details

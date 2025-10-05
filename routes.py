@@ -1,15 +1,20 @@
 from app import app, db
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
-from models import User, Car
 from werkzeug.utils import secure_filename
+from models import User, Car
 import os
 import json
 from car_data import (
-    CAR_MAKES_MODELS, ENGINE_LITERS, ENGINE_CYLINDERS, YEARS, 
+    CAR_MAKES_MODELS, ENGINE_LITERS, ENGINE_CYLINDERS, YEARS,
     CATEGORIES, GEARBOX_OPTIONS, STEERING_OPTIONS, DRIVE_OPTIONS,
     DOORS_OPTIONS, COLORS, INTERIOR_MATERIALS, INTERIOR_COLORS, FUEL_TYPES
 )
+
+MILEAGE_UNIT_OPTIONS = [
+    ("km", "Kilometers"),
+    ("mi", "Miles")
+]
 
 FEATURES_OPTIONS = [
     'Air conditioner', 'Climate control', 'Wheels', 'Electric windows', 'Rear view camera',
@@ -54,6 +59,7 @@ def search():
         query['colors'] = request.form.getlist('colors')
         query['interior_material'] = request.form.get('interior_material')
         query['interior_colors'] = request.form.getlist('interior_colors')
+        query['fuel_type'] = request.form.get('fuel_type')
 
     # Build query
     cars_query = Car.query
@@ -102,11 +108,32 @@ def search():
         cars_query = cars_query.filter(Car.interior_color.in_(query['interior_colors']))
 
     cars = cars_query.all()
-    return render_template('search.html', cars=cars, features_options=FEATURES_OPTIONS)
+    return render_template(
+        'search.html',
+        cars=cars,
+        features_options=FEATURES_OPTIONS,
+        color_options=COLORS,
+        interior_color_options=INTERIOR_COLORS,
+        interior_material_options=INTERIOR_MATERIALS,
+        fuel_types=FUEL_TYPES,
+        gearbox_options=GEARBOX_OPTIONS,
+        drive_options=DRIVE_OPTIONS,
+        door_options=DOORS_OPTIONS,
+        categories=CATEGORIES,
+        mileage_unit_options=MILEAGE_UNIT_OPTIONS,
+        selected_filters=query
+    )
 @app.route('/car/<int:car_id>')
 def car_detail(car_id):
     car = Car.query.get_or_404(car_id)
-    return render_template('car_detail.html', car=car)
+    car.views = (car.views or 0) + 1
+    db.session.commit()
+    return render_template(
+        'car_detail.html',
+        car=car,
+        total_favorites=car.favorites_count,
+        mileage_unit_options=MILEAGE_UNIT_OPTIONS
+    )
 
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
@@ -122,7 +149,8 @@ def upload():
         engine_liters = request.form.get('engine_liters', '')
         engine_cylinders = request.form.get('engine_cylinders', '')
         fuel_type = request.form.get('fuel_type', '')
-        mileage = request.form.get('mileage', '0')
+        mileage_value = request.form.get('mileage', '0')
+        mileage_unit = request.form.get('mileage_unit', 'km')
         category = request.form.get('category', '')
         gearbox = request.form.get('gearbox', '')
         steering = request.form.get('steering', '')
@@ -134,6 +162,7 @@ def upload():
         interior_material = request.form.get('interior_material', '')
         interior_color = request.form.get('interior_color', '')
         description = request.form.get('description', '')
+        contact_number = request.form.get('contact_number', '')
         
         # Convert to boolean
         tech_inspection = tech_inspection_value == 'Yes' if tech_inspection_value else False
@@ -144,17 +173,19 @@ def upload():
             year_int = int(year) if year else 0
         except ValueError:
             year_int = 0
-            
+
         try:
             price_float = float(price) if price else 0.0
         except ValueError:
             price_float = 0.0
-            
+
         try:
-            mileage_int = int(mileage) if mileage else 0
+            mileage_float = float(mileage_value) if mileage_value else 0.0
         except ValueError:
-            mileage_int = 0
-        
+            mileage_float = 0.0
+
+        mileage_int = int(round(mileage_float * 1.60934)) if mileage_unit == 'mi' else int(round(mileage_float))
+
         # Create car object
         car = Car(
             make=make,
@@ -165,6 +196,7 @@ def upload():
             engine_cylinders=engine_cylinders,
             fuel_type=fuel_type,
             mileage=mileage_int,
+            mileage_unit=mileage_unit,
             category=category,
             gearbox=gearbox,
             steering=steering,
@@ -176,6 +208,7 @@ def upload():
             interior_material=interior_material,
             interior_color=interior_color,
             description=description,
+            contact_number=contact_number,
             user_id=current_user.id
         )
         
@@ -229,7 +262,7 @@ def upload():
         flash('Car uploaded successfully!')
         return redirect(url_for('profile'))
 
-    return render_template('upload.html', 
+    return render_template('upload.html',
                          features_options=FEATURES_OPTIONS,
                          car_makes=sorted(CAR_MAKES_MODELS.keys()),
                          years=YEARS,
@@ -243,13 +276,16 @@ def upload():
                          doors_options=DOORS_OPTIONS,
                          colors=COLORS,
                          interior_materials=INTERIOR_MATERIALS,
-                         interior_colors=INTERIOR_COLORS)
+                         interior_colors=INTERIOR_COLORS,
+                         mileage_unit_options=MILEAGE_UNIT_OPTIONS)
 
 @app.route('/profile')
 @login_required
 def profile():
     cars = current_user.cars.all()
-    return render_template('profile.html', cars=cars)
+    total_views = sum((car.views or 0) for car in cars)
+    total_favorites = sum(car.favorites_count for car in cars)
+    return render_template('profile.html', cars=cars, total_views=total_views, total_favorites=total_favorites)
 
 @app.route('/edit_car/<int:car_id>', methods=['GET', 'POST'])
 @login_required
@@ -268,7 +304,8 @@ def edit_car(car_id):
         
         year = request.form.get('year', '0')
         price = request.form.get('price', '0')
-        mileage = request.form.get('mileage', '0')
+        mileage_value = request.form.get('mileage', '0')
+        mileage_unit = request.form.get('mileage_unit', 'km')
         
         # Safe conversions
         try:
@@ -282,9 +319,12 @@ def edit_car(car_id):
             car.price = 0.0
         
         try:
-            car.mileage = int(mileage) if mileage else 0
+            mileage_float = float(mileage_value) if mileage_value else 0.0
         except ValueError:
-            car.mileage = 0
+            mileage_float = 0.0
+
+        car.mileage = int(round(mileage_float * 1.60934)) if mileage_unit == 'mi' else int(round(mileage_float))
+        car.mileage_unit = mileage_unit
         
         car.engine_liters = request.form.get('engine_liters', '')
         car.engine_cylinders = request.form.get('engine_cylinders', '')
@@ -304,6 +344,7 @@ def edit_car(car_id):
         car.interior_material = request.form.get('interior_material', '')
         car.interior_color = request.form.get('interior_color', '')
         car.description = request.form.get('description', '')
+        car.contact_number = request.form.get('contact_number', '')
         
         # Update features
         features = request.form.getlist('features')
@@ -344,7 +385,7 @@ def edit_car(car_id):
         flash('Car updated successfully!')
         return redirect(url_for('car_detail', car_id=car.id))
     
-    return render_template('edit.html', 
+    return render_template('edit.html',
                          car=car,
                          features_options=FEATURES_OPTIONS,
                          car_makes=sorted(CAR_MAKES_MODELS.keys()),
@@ -360,7 +401,8 @@ def edit_car(car_id):
                          doors_options=DOORS_OPTIONS,
                          colors=COLORS,
                          interior_materials=INTERIOR_MATERIALS,
-                         interior_colors=INTERIOR_COLORS)
+                         interior_colors=INTERIOR_COLORS,
+                         mileage_unit_options=MILEAGE_UNIT_OPTIONS)
 
 @app.route('/delete_car/<int:car_id>', methods=['POST'])
 @login_required

@@ -63,13 +63,18 @@ DRIVE_OPTIONS = ["Front-wheel drive (FWD)", "Rear-wheel drive (RWD)", "All-wheel
 DOORS_OPTIONS = ["2", "3", "4", "5", ">5"]
 
 COLORS = [
-    "White", "Black", "Silver", "Gray", "Red", "Blue", "Green", "Yellow", 
-    "Orange", "Brown", "Beige", "Gold", "Purple", "Pink", "Burgundy", 
-    "Navy", "Teal", "Charcoal", "Pearl White", "Metallic Gray"
+    "White", "Black", "Silver", "Gray", "Red", "Blue", "Green", "Yellow",
+    "Orange", "Brown", "Beige", "Gold", "Purple", "Pink", "Burgundy",
+    "Navy", "Teal", "Charcoal", "Pearl White", "Metallic Gray", "Matte Black",
+    "Matte Gray", "Turquoise", "Lime Green", "Bronze", "Copper", "Champagne",
+    "Graphite", "Ivory", "Magenta"
 ]
 
 INTERIOR_MATERIALS = ["Cloth", "Leather", "Synthetic Leather", "Alcantara", "Suede", "Vinyl"]
 
-INTERIOR_COLORS = ["Black", "Gray", "Beige", "Tan", "Brown", "White", "Red", "Blue"]
+INTERIOR_COLORS = [
+    "Black", "Gray", "Beige", "Tan", "Brown", "White", "Red", "Blue",
+    "Cream", "Ivory", "Two-tone", "Chocolate"
+]
 
 FUEL_TYPES = ["Gasoline", "Diesel", "Electric", "Hybrid", "Plug-in Hybrid", "Hydrogen", "CNG", "LPG"]
