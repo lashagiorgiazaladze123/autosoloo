@@ -8,6 +8,8 @@ def _resolve_db_path(app):
     if app is not None:
         uri = app.config.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///autosolo.db')
         instance_path = app.instance_path
+        if instance_path and not os.path.exists(instance_path):
+            os.makedirs(instance_path, exist_ok=True)
     else:
         uri = 'sqlite:///autosolo.db'
         instance_path = os.getcwd()
@@ -15,17 +17,19 @@ def _resolve_db_path(app):
     if uri.startswith('sqlite:///'):
         parsed = urlparse(uri)
         raw_path = parsed.path or uri.replace('sqlite:///', '', 1)
+        is_explicit_absolute = uri.startswith('sqlite:////')
 
         if os.name == 'nt':
             # Strip a single leading slash for Windows drive-letter paths (/C:/foo -> C:/foo)
             if raw_path.startswith('/') and len(raw_path) > 2 and raw_path[2] == ':':
                 raw_path = raw_path[1:]
-        
-        if os.path.isabs(raw_path) or (os.name == 'nt' and len(raw_path) > 1 and raw_path[1] == ':'):
-            resolved = raw_path
-        else:
+
+        if not is_explicit_absolute and not (os.name == 'nt' and len(raw_path) > 1 and raw_path[1] == ':'):
             base_dir = instance_path if app is not None else os.getcwd()
-            resolved = os.path.join(base_dir, raw_path.lstrip('/'))
+            raw_path = raw_path.lstrip('/')
+            resolved = os.path.join(base_dir, raw_path)
+        else:
+            resolved = raw_path
 
         resolved = os.path.abspath(resolved)
         os.makedirs(os.path.dirname(resolved), exist_ok=True)
