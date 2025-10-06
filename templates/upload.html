@@ -37,18 +37,21 @@
         <div class="form-grid">
             <div class="form-group">
                 <label for="make">Make <span class="required">*</span></label>
-                <select id="make" name="make" required class="form-select" onchange="updateModels()">
-                    <option value="">Select Make</option>
+                <input id="make" name="make" type="text" required class="form-select" placeholder="Select or type make" list="make-options" autocomplete="off" value="{{ request.form.get('make', '') }}" oninput="updateModels(true)" onchange="updateModels(true)">
+                <datalist id="make-options">
                     {% for make in car_makes %}
-                    <option value="{{ make }}">{{ make }}</option>
+                    <option value="{{ make }}"></option>
                     {% endfor %}
-                </select>
+                </datalist>
             </div>
             <div class="form-group">
                 <label for="model">Model <span class="required">*</span></label>
-                <select id="model" name="model" required class="form-select" disabled>
-                    <option value="">Select Make First</option>
-                </select>
+                <input id="model" name="model" type="text" required class="form-select" placeholder="Select or type model" list="model-options" autocomplete="off" value="{{ request.form.get('model', '') }}" data-selected-model="{{ request.form.get('model', '') }}">
+                <datalist id="model-options">
+                    {% for model in all_models %}
+                    <option value="{{ model }}"></option>
+                    {% endfor %}
+                </datalist>
             </div>
             <div class="form-group">
                 <label for="year">Year <span class="required">*</span></label>
@@ -71,23 +74,36 @@
                 <input type="tel" id="contact_number" name="contact_number" placeholder="e.g., +1 555 123 4567" pattern="[+0-9\s-]{6,20}">
                 <span class="field-hint">Buyers will use this number to contact you</span>
             </div>
-            <div class="form-group">
-                <label for="engine_liters">Engine Size</label>
-                <select id="engine_liters" name="engine_liters" class="form-select">
-                    <option value="">Select Engine Size</option>
-                    {% for size in engine_liters %}
-                    <option value="{{ size }}">{{ size }}</option>
-                    {% endfor %}
-                </select>
+            <div id="engineFields" class="engine-fields">
+                <div class="form-group">
+                    <label for="engine_liters">Engine Size</label>
+                    <select id="engine_liters" name="engine_liters" class="form-select">
+                        <option value="">Select Engine Size</option>
+                        {% for size in engine_liters %}
+                        <option value="{{ size }}">{{ size }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="engine_cylinders">Engine Type</label>
+                    <select id="engine_cylinders" name="engine_cylinders" class="form-select">
+                        <option value="">Select Engine Type</option>
+                        {% for type in engine_cylinders %}
+                        <option value="{{ type }}">{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="engine_cylinders">Engine Type</label>
-                <select id="engine_cylinders" name="engine_cylinders" class="form-select">
-                    <option value="">Select Engine Type</option>
-                    {% for type in engine_cylinders %}
-                    <option value="{{ type }}">{{ type }}</option>
-                    {% endfor %}
-                </select>
+            <div id="electricFields" class="electric-fields hidden">
+                <div class="form-group">
+                    <label for="battery_capacity">Battery Capacity (kWh) <span class="optional">(Optional)</span></label>
+                    <input type="number" id="battery_capacity" name="battery_capacity" min="0" step="0.1" placeholder="e.g., 75">
+                </div>
+                <div class="form-group">
+                    <label for="range_km">Range (km) <span class="optional">(Optional)</span></label>
+                    <input type="number" id="range_km" name="range_km" min="0" step="1" placeholder="e.g., 450">
+                </div>
+                <span class="field-hint" id="electricHint">Provide at least one of the fields above for electric cars.</span>
             </div>
             <div class="form-group">
                 <label for="fuel_type">Fuel Type</label>
@@ -153,6 +169,18 @@
                     <option value="{{ option }}">{{ option }}</option>
                     {% endfor %}
                 </select>
+            </div>
+            <div class="form-group full-width">
+                <label>Additional Functions</label>
+                <div class="features-grid compact">
+                    {% for feature in features_options %}
+                    <label class="chip">
+                        <input type="checkbox" name="features" value="{{ feature }}">
+                        <span>{{ feature }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <span class="field-hint">Select all that apply</span>
             </div>
             <div class="form-group">
                 <label for="color">Color</label>
@@ -238,6 +266,8 @@
 
 <!-- Image Preview Script -->
 <script>
+let uploadModelDefaultOptions = '';
+
 document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('images');
     const previewGrid = document.getElementById('imagePreview');
@@ -470,53 +500,78 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    // initialize model state based on pre-filled make value
+    const presetModel = modelInput ? (modelInput.dataset.selectedModel || '') : '';
+    updateModels(false, presetModel);
 });
 
 // Dynamic Model Loading
-function updateModels() {
-    const makeSelect = document.getElementById('make');
-    const modelSelect = document.getElementById('model');
-    const selectedMake = makeSelect.value;
-    
-    // Clear current models
-    modelSelect.innerHTML = '<option value="">Loading...</option>';
-    modelSelect.disabled = true;
-    
-    if (!selectedMake) {
-        modelSelect.innerHTML = '<option value="">Select Make First</option>';
+function updateModels(clearValue = false, presetOverride = '') {
+    const makeInput = document.getElementById('make');
+    const modelInput = document.getElementById('model');
+    const modelDatalist = document.getElementById('model-options');
+
+    if (modelDatalist && !uploadModelDefaultOptions) {
+        uploadModelDefaultOptions = modelDatalist.innerHTML;
+    }
+
+    const syncValueState = (field) => {
+        if (!field) {
+            return;
+        }
+        if (field.value) {
+            field.classList.add('has-value');
+        } else {
+            field.classList.remove('has-value');
+        }
+    };
+
+    document.querySelectorAll('.form-select').forEach(field => {
+        field.addEventListener('input', () => syncValueState(field));
+        field.addEventListener('change', () => syncValueState(field));
+        syncValueState(field);
+    });
+
+    if (!makeInput || !modelInput || !modelDatalist) {
         return;
     }
-    
-    // Fetch models for selected make
-    fetch(`/api/get-models/${selectedMake}`)
+
+    const selectedMake = (makeInput.value || '').trim();
+    const defaultOptions = uploadModelDefaultOptions || '';
+    const presetModel = presetOverride || (clearValue ? '' : (modelInput.dataset.selectedModel || modelInput.value || ''));
+
+    if (clearValue) {
+        modelInput.value = '';
+        modelInput.dataset.selectedModel = '';
+    }
+
+    if (!selectedMake) {
+        modelDatalist.innerHTML = defaultOptions;
+        modelInput.value = presetModel;
+        return;
+    }
+
+    modelDatalist.innerHTML = '';
+
+    fetch(`/api/get-models/${encodeURIComponent(selectedMake)}`)
         .then(response => response.json())
         .then(models => {
-            modelSelect.innerHTML = '<option value="">Select Model</option>';
-            models.forEach(model => {
-                const option = document.createElement('option');
-                option.value = model;
-                option.textContent = model;
-                modelSelect.appendChild(option);
-            });
-            modelSelect.disabled = false;
+            if (Array.isArray(models) && models.length) {
+                modelDatalist.innerHTML = models
+                    .map(model => `<option value="${model}"></option>`)
+                    .join('');
+            } else {
+                modelDatalist.innerHTML = '';
+            }
+            modelInput.value = presetModel;
+            modelInput.dataset.selectedModel = '';
         })
         .catch(error => {
             console.error('Error fetching models:', error);
-            modelSelect.innerHTML = '<option value="">Error loading models</option>';
+            modelDatalist.innerHTML = defaultOptions;
+            modelInput.value = presetModel;
         });
 }
-
-// Add visual feedback for form selections
-document.querySelectorAll('.form-select').forEach(select => {
-    select.addEventListener('change', function() {
-        if (this.value) {
-            this.classList.add('has-value');
-        } else {
-            this.classList.remove('has-value');
-        }
-    });
-});
-
 // Form submit handler to verify files
 document.getElementById('uploadForm').addEventListener('submit', function(e) {
     const fileInput = document.getElementById('images');
@@ -526,7 +581,46 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
     for (let i = 0; i < fileInput.files.length; i++) {
         console.log(`Image ${i + 1}: ${fileInput.files[i].name} (${fileInput.files[i].size} bytes)`);
     }
+
+    const fuelType = document.getElementById('fuel_type').value;
+    if (fuelType === 'Electric') {
+        const battery = document.getElementById('battery_capacity').value.trim();
+        const range = document.getElementById('range_km').value.trim();
+        if (!battery && !range) {
+            e.preventDefault();
+            const hint = document.getElementById('electricHint');
+            hint.classList.add('error');
+            hint.textContent = 'Please provide at least Battery Capacity or Range for electric cars.';
+            document.getElementById('battery_capacity').focus();
+        }
+    }
 });
+
+// Fuel type dynamic toggle
+const fuelTypeSelect = document.getElementById('fuel_type');
+const engineFields = document.getElementById('engineFields');
+const electricFields = document.getElementById('electricFields');
+
+function togglePowertrainFields() {
+    const value = fuelTypeSelect.value;
+    const isElectric = value === 'Electric';
+
+    if (isElectric) {
+        engineFields.classList.add('hidden');
+        electricFields.classList.remove('hidden');
+    } else {
+        engineFields.classList.remove('hidden');
+        electricFields.classList.add('hidden');
+        // reset hint state
+        const hint = document.getElementById('electricHint');
+        hint.classList.remove('error');
+        hint.textContent = 'Provide at least one of the fields above for electric cars.';
+    }
+}
+
+fuelTypeSelect.addEventListener('change', togglePowertrainFields);
+// Initialize on load in case of browser autofill
+togglePowertrainFields();
 </script>
 
 {% endblock %}

@@ -1,7 +1,157 @@
 {% extends 'base.html' %}
-{% block title %}Search Cars - AutoSolo{% endblock %}
-{% block content %}
 
+{% block scripts %}
+{{ super() }}
+<script>
+let searchModelDefaultOptions = '';
+
+document.addEventListener('DOMContentLoaded', function() {
+    const makeInput = document.getElementById('make-input');
+    const modelInput = document.getElementById('model-input');
+    const modelDatalist = document.getElementById('model-options');
+
+    if (modelDatalist && !searchModelDefaultOptions) {
+        searchModelDefaultOptions = modelDatalist.innerHTML;
+    }
+
+    if (!makeInput || !modelInput || !modelDatalist) {
+        console.error('Required elements not found:', { makeInput, modelInput, modelDatalist });
+        return;
+    }
+
+    console.log('Make-model filtering initialized');
+
+    // Store default options
+    const defaultModelValues = Array.from(modelDatalist.options).map(option => option.value);
+
+    function populateDatalist(values) {
+        console.log('Populating datalist with', values.length, 'options');
+        modelDatalist.innerHTML = '';
+        values.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            modelDatalist.appendChild(option);
+        });
+    }
+
+    function populateModels(makeValue, clearValue = true) {
+        const make = (makeValue || '').trim();
+        console.log('populateModels called with make:', make, 'clearValue:', clearValue);
+
+        if (clearValue) {
+            modelInput.value = '';
+        }
+
+        if (!make) {
+            console.log('No make specified, showing all models');
+            populateDatalist(defaultModelValues);
+            modelInput.disabled = false;
+            modelInput.placeholder = 'Select or type model';
+            return;
+        }
+
+        modelInput.disabled = true;
+        modelInput.placeholder = 'Loading models…';
+
+        console.log('Fetching models for make:', make);
+        fetch(`/api/get-models/${encodeURIComponent(make)}`)
+            .then(response => {
+                console.log('API response status:', response.status);
+                return response.json();
+            })
+            .then(models => {
+                console.log('Received models:', models);
+                if (Array.isArray(models) && models.length) {
+                    populateDatalist(models);
+                    modelInput.placeholder = 'Select or type model';
+                } else {
+                    populateDatalist([]);
+                    modelInput.placeholder = 'No models available';
+                }
+
+                modelInput.disabled = false;
+            })
+            .catch(error => {
+                console.error('Failed to load models for make', make, error);
+                populateDatalist(defaultModelValues);
+                modelInput.disabled = false;
+                modelInput.placeholder = 'Select or type model';
+            });
+    }
+
+    // Listen for multiple events to ensure filtering works
+    makeInput.addEventListener('input', function(e) {
+        console.log('Make input event fired:', e.type, 'value:', e.target.value);
+        populateModels(e.target.value, true);
+    });
+
+    makeInput.addEventListener('change', function(e) {
+        console.log('Make change event fired:', e.type, 'value:', e.target.value);
+        populateModels(e.target.value, true);
+    });
+
+    makeInput.addEventListener('blur', function(e) {
+        console.log('Make blur event fired, value:', e.target.value);
+        // Small delay to allow datalist selection to complete
+        setTimeout(() => populateModels(e.target.value, false), 100);
+    });
+
+    // Also listen for when the model input is focused to ensure current make is applied
+    modelInput.addEventListener('focus', function() {
+        const currentMake = makeInput.value.trim();
+        if (currentMake) {
+            console.log('Model input focused, re-applying make filter for:', currentMake);
+            populateModels(currentMake, false);
+        }
+    });
+
+    // Add a click listener to the model input as well - this is what the user triggers
+    modelInput.addEventListener('click', function() {
+        const currentMake = makeInput.value.trim();
+        if (currentMake) {
+            console.log('Model input clicked, ensuring make filter is applied for:', currentMake);
+            // Force immediate update
+            populateModels(currentMake, false);
+        }
+    });
+
+    // Add mousedown event as well for better responsiveness
+    modelInput.addEventListener('mousedown', function() {
+        const currentMake = makeInput.value.trim();
+        if (currentMake) {
+            console.log('Model input mousedown, ensuring make filter is applied for:', currentMake);
+            populateModels(currentMake, false);
+        }
+    });
+
+    // Monitor the make input for any changes using a mutation observer as backup
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                const newValue = makeInput.value.trim();
+                if (newValue) {
+                    console.log('Make input value changed via mutation observer:', newValue);
+                    populateModels(newValue, false);
+                }
+            }
+        });
+    });
+    
+    observer.observe(makeInput, {
+        attributes: true,
+        attributeFilter: ['value']
+    });
+
+    // Initialize if make already has a value
+    if (makeInput.value) {
+        console.log('Make has initial value:', makeInput.value);
+        populateModels(makeInput.value, false);
+    }
+});
+</script>
+{% endblock %}
+
+{% block content %}
 <!-- Search Page Header -->
 <div class="page-header">
     <h1>
@@ -13,171 +163,217 @@
 
 <!-- Enhanced Search Form -->
 <form class="search-form" method="POST" role="search">
-    <div class="search-input-wrapper">
-        <i class="fas fa-car search-icon" aria-hidden="true"></i>
-        <input type="text" name="make" placeholder="Enter car make (e.g., Toyota, BMW)" value="{{ selected_filters.make or '' }}" class="search-input">
+    <div class="search-header-grid">
+        <div class="search-input-wrapper">
+            <label for="make-input">Make</label>
+            <div class="input-with-select input-compact">
+                <i class="fas fa-car search-icon" aria-hidden="true"></i>
+                <input id="make-input" type="text" name="make" class="search-input compact-input" placeholder="Select or type make" list="make-options" autocomplete="off" value="{{ selected_filters.make or '' }}">
+                <datalist id="make-options">
+                    {% for make in makes %}
+                    <option value="{{ make }}"></option>
+                    {% endfor %}
+                </datalist>
+            </div>
+        </div>
+        <div class="search-input-wrapper">
+            <label for="model-input">Model</label>
+            <div class="input-with-select input-compact">
+                <i class="fas fa-cogs search-icon" aria-hidden="true"></i>
+                <input id="model-input" type="text" name="model" class="search-input compact-input" placeholder="Select or type model" list="model-options" autocomplete="off" value="{{ selected_filters.model or '' }}" data-selected-model="{{ selected_filters.model or '' }}">
+                <datalist id="model-options">
+                    {% for model in all_models %}
+                    <option value="{{ model }}"></option>
+                    {% endfor %}
+                </datalist>
+            </div>
+        </div>
+        <div class="search-input-wrapper">
+            <label for="engine-filter">Engine Keyword</label>
+            <input id="engine-filter" type="text" name="engine" placeholder="e.g., 2.0L, V6" value="{{ selected_filters.engine or '' }}" class="compact-input">
+        </div>
+        <div class="search-input-wrapper">
+            <label for="mileage-unit">Mileage Unit</label>
+            <input id="mileage-unit" type="text" name="mileage_unit" list="mileage-unit-options" placeholder="km or miles" value="{{ selected_filters.mileage_unit or '' }}" class="compact-input" autocomplete="off">
+            <datalist id="mileage-unit-options">
+                {% for value, label in mileage_unit_options %}
+                <option value="{{ value }}" label="{{ label }}"></option>
+                {% endfor %}
+            </datalist>
+        </div>
     </div>
-    
-    <div class="search-input-wrapper">
-        <i class="fas fa-cogs search-icon" aria-hidden="true"></i>
-        <input type="text" name="model" placeholder="Enter car model (e.g., Camry, X5)" value="{{ selected_filters.model or '' }}" class="search-input">
-    </div>
-    
-    <details>
-        <summary>
-            <i class="fas fa-sliders-h" aria-hidden="true"></i>
-            Advanced Filters
-        </summary>
-        <div class="filter-grid">
-            <!-- Year -->
-            <div class="form-group">
-                <label>Min Year</label>
-                <input type="number" name="min_year" placeholder="2000" value="{{ selected_filters.min_year or '' }}">
+
+    <div class="filter-grid">
+        <div class="form-group">
+            <label>Min Year</label>
+            <input type="number" name="min_year" placeholder="2000" value="{{ selected_filters.min_year or '' }}" class="compact-input">
+        </div>
+        <div class="form-group">
+            <label>Max Year</label>
+            <input type="number" name="max_year" placeholder="2025" value="{{ selected_filters.max_year or '' }}" class="compact-input">
+        </div>
+        <div class="form-group">
+            <label>Min Price</label>
+            <input type="number" name="min_price" value="{{ selected_filters.min_price or '' }}" class="compact-input">
+        </div>
+        <div class="form-group">
+            <label>Max Price</label>
+            <input type="number" name="max_price" value="{{ selected_filters.max_price or '' }}" class="compact-input">
+        </div>
+        <div class="form-group">
+            <label>Fuel Type</label>
+            <input type="text" name="fuel_type" list="fuel-type-options" value="{{ selected_filters.fuel_type or '' }}" class="compact-input" autocomplete="off">
+            <datalist id="fuel-type-options">
+                {% for fuel in fuel_types %}
+                <option value="{{ fuel }}"></option>
+                {% endfor %}
+            </datalist>
+        </div>
+        <div class="form-group">
+            <label>Cylinders</label>
+            <select name="engine_cylinders" class="form-select">
+                <option value="">Any</option>
+                {% for cyl in engine_cylinders_options %}
+                <option value="{{ cyl }}" {% if selected_filters.engine_cylinders == cyl %}selected{% endif %}>{{ cyl }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Engine Size</label>
+            <select name="engine_liters" class="form-select">
+                <option value="">Any</option>
+                {% for size in engine_liters_options %}
+                <option value="{{ size }}" {% if selected_filters.engine_liters == size %}selected{% endif %}>{{ size }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Min Mileage</label>
+            <input type="number" name="min_mileage" value="{{ selected_filters.min_mileage or '' }}" class="compact-input">
+        </div>
+        <div class="form-group">
+            <label>Max Mileage</label>
+            <input type="number" name="max_mileage" value="{{ selected_filters.max_mileage or '' }}" class="compact-input">
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <input type="text" name="category" list="category-options" value="{{ selected_filters.category or '' }}" class="compact-input" autocomplete="off">
+            <datalist id="category-options">
+                {% for cat in categories %}
+                <option value="{{ cat }}"></option>
+                {% endfor %}
+            </datalist>
+        </div>
+        <div class="form-group">
+            <label>Gearbox</label>
+            <input type="text" name="gearbox" list="gearbox-options" value="{{ selected_filters.gearbox or '' }}" class="compact-input" autocomplete="off">
+            <datalist id="gearbox-options">
+                {% for option in gearbox_options %}
+                <option value="{{ option }}"></option>
+                {% endfor %}
+            </datalist>
+        </div>
+        <div class="form-group">
+            <label>Steering</label>
+            <div class="chip-group compact-chips">
+                {% for option in steering_options %}
+                <label class="chip micro-chip">
+                    <input type="checkbox" name="steering" value="{{ option }}" {% if selected_filters.steering and option in selected_filters.steering %}checked{% endif %}>
+                    <span>{{ option }}</span>
+                </label>
+                {% endfor %}
             </div>
-            <div class="form-group">
-                <label>Max Year</label>
-                <input type="number" name="max_year" placeholder="2025" value="{{ selected_filters.max_year or '' }}">
+        </div>
+        <div class="form-group">
+            <label>Drive Wheels</label>
+            <div class="chip-group compact-chips">
+                {% for option in drive_options %}
+                <label class="chip micro-chip">
+                    <input type="checkbox" name="drive" value="{{ option }}" {% if selected_filters.drive and option in selected_filters.drive %}checked{% endif %}>
+                    <span>{{ option }}</span>
+                </label>
+                {% endfor %}
             </div>
-            <!-- Price -->
-            <div class="form-group">
-                <label>Min Price</label>
-                <input type="number" name="min_price" value="{{ selected_filters.min_price or '' }}">
+        </div>
+        <div class="form-group">
+            <label>Doors</label>
+            <div class="chip-group compact-chips">
+                {% for option in door_options %}
+                <label class="chip micro-chip">
+                    <input type="checkbox" name="doors" value="{{ option }}" {% if selected_filters.doors and option in selected_filters.doors %}checked{% endif %}>
+                    <span>{{ option }}</span>
+                </label>
+                {% endfor %}
             </div>
-            <div class="form-group">
-                <label>Max Price</label>
-                <input type="number" name="max_price" value="{{ selected_filters.max_price or '' }}">
+        </div>
+        <div class="form-group">
+            <label>Tech Inspection</label>
+            <input type="text" name="tech_inspection" list="inspection-options" value="{{ selected_filters.tech_inspection or '' }}" class="compact-input" autocomplete="off">
+            <datalist id="inspection-options">
+                <option value="Yes"></option>
+                <option value="No"></option>
+            </datalist>
+        </div>
+        <div class="form-group">
+            <label>Catalyst</label>
+            <input type="text" name="catalyst" list="catalyst-options" value="{{ selected_filters.catalyst or '' }}" class="compact-input" autocomplete="off">
+            <datalist id="catalyst-options">
+                <option value="Yes"></option>
+                <option value="No"></option>
+            </datalist>
+        </div>
+        <div class="form-group full-width">
+            <label>Additional Functions</label>
+            <div class="features-grid compact">
+                {% for feature in features_options %}
+                <label class="chip micro-chip">
+                    <input type="checkbox" name="features" value="{{ feature }}" {% if selected_filters.features and feature in selected_filters.features %}checked{% endif %}>
+                    <span>{{ feature }}</span>
+                </label>
+                {% endfor %}
             </div>
-            <!-- Engine -->
-            <div class="form-group">
-                <label>Engine</label>
-                <input type="text" name="engine" placeholder="e.g., 2.0L" value="{{ selected_filters.engine or '' }}">
-            </div>
-            <!-- Mileage -->
-            <div class="form-group">
-                <label>Min Mileage</label>
-                <input type="number" name="min_mileage" value="{{ selected_filters.min_mileage or '' }}">
-            </div>
-            <div class="form-group">
-                <label>Max Mileage</label>
-                <input type="number" name="max_mileage" value="{{ selected_filters.max_mileage or '' }}">
-            </div>
-            <!-- Category -->
-            <div class="form-group">
-                <label>Category</label>
-                <select name="category">
-                    <option value="">Any</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat }}" {% if selected_filters.category == cat %}selected{% endif %}>{{ cat }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <!-- Gearbox -->
-            <div class="form-group">
-                <label>Gearbox</label>
-                <select name="gearbox">
-                    <option value="">Any</option>
-                    {% for option in gearbox_options %}
-                    <option value="{{ option }}" {% if selected_filters.gearbox == option %}selected{% endif %}>{{ option }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <!-- Steering -->
-            <div class="form-group">
-                <label>Steering</label>
-                <div>
-                    {% for option in steering_options %}
-                    <label><input type="checkbox" name="steering" value="{{ option }}" {% if selected_filters.steering and option in selected_filters.steering %}checked{% endif %}> {{ option }}</label>
-                    {% endfor %}
-                </div>
-            </div>
-            <!-- Drive -->
-            <div class="form-group">
-                <label>Drive Wheels</label>
-                <div>
-                    {% for option in drive_options %}
-                    <label><input type="checkbox" name="drive" value="{{ option }}" {% if selected_filters.drive and option in selected_filters.drive %}checked{% endif %}> {{ option }}</label>
-                    {% endfor %}
-                </div>
-            </div>
-            <!-- Doors -->
-            <div class="form-group">
-                <label>Doors</label>
-                <div>
-                    {% for option in door_options %}
-                    <label><input type="checkbox" name="doors" value="{{ option }}" {% if selected_filters.doors and option in selected_filters.doors %}checked{% endif %}> {{ option }}</label>
-                    {% endfor %}
-                </div>
-            </div>
-            <!-- Tech Inspection -->
-            <div class="form-group">
-                <label>Tech Inspection</label>
-                <select name="tech_inspection">
-                    <option value="">Any</option>
-                    <option value="Yes" {% if selected_filters.tech_inspection == 'Yes' %}selected{% endif %}>Yes</option>
-                    <option value="No" {% if selected_filters.tech_inspection == 'No' %}selected{% endif %}>No</option>
-                </select>
-            <!-- Catalyst -->
-            <div class="form-group">
-                <label>Catalyst</label>
-                <select name="catalyst">
-                    <option value="">Any</option>
-                    {% for option in catalyst_options %}
-                    <option value="{{ option }}" {% if selected_filters.catalyst == option %}selected{% endif %}>{{ option }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <!-- Fuel Type -->
-            <div class="form-group">
-                <label>Fuel Type</label>
-                <select name="fuel_type">
-                    <option value="">Any</option>
-                    {% for fuel in fuel_types %}
-                    <option value="{{ fuel }}" {% if selected_filters.fuel_type == fuel %}selected{% endif %}>{{ fuel }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <!-- Features -->
-            <div class="form-group full-width">
-                <label>Additional Functions</label>
-                <div class="features-grid">
-                    {% for feature in features_options %}
-                    <label><input type="checkbox" name="features" value="{{ feature }}" {% if selected_filters.features and feature in selected_filters.features %}checked{% endif %}> {{ feature }}</label>
-                    {% endfor %}
-                </div>
-            </div>
-            <!-- Colors -->
-            <div class="form-group full-width">
-                <label>Car Color</label>
-                <select name="colors" multiple>
+        </div>
+        <div class="form-group full-width">
+            <label>Car Color</label>
+            <div class="multi-select-group">
+                <select name="colors" multiple class="compact-input multi-select" size="4">
                     {% for color in color_options %}
                     <option value="{{ color }}" {% if selected_filters.colors and color in selected_filters.colors %}selected{% endif %}>{{ color }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <!-- Interior Material -->
-            <div class="form-group">
-                <label>Interior Material</label>
-                <select name="interior_material">
-                    <option value="">Any</option>
-                    {% for material in interior_material_options %}
-                    <option value="{{ material }}" {% if selected_filters.interior_material == material %}selected{% endif %}>{{ material }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <!-- Interior Colors -->
-            <div class="form-group full-width">
-                <label>Interior Color</label>
-                <select name="interior_colors" multiple>
+        </div>
+        <div class="form-group">
+            <label>Interior Material</label>
+            <input type="text" name="interior_material" list="interior-material-options" value="{{ selected_filters.interior_material or '' }}" class="compact-input" autocomplete="off">
+            <datalist id="interior-material-options">
+                {% for material in interior_material_options %}
+                <option value="{{ material }}"></option>
+                {% endfor %}
+            </datalist>
+        </div>
+        <div class="form-group full-width">
+            <label>Interior Color</label>
+            <div class="multi-select-group">
+                <select name="interior_colors" multiple class="compact-input multi-select" size="4">
                     {% for interior_color in interior_color_options %}
                     <option value="{{ interior_color }}" {% if selected_filters.interior_colors and interior_color in selected_filters.interior_colors %}selected{% endif %}>{{ interior_color }}</option>
                     {% endfor %}
                 </select>
             </div>
         </div>
-    </details>
-    <button type="submit" class="btn-modern btn-primary btn-large">
-        Apply Filters
-    </button>
+    </div>
+
+    <div class="filter-actions">
+        <button type="submit" class="btn-modern btn-primary btn-compact">
+            <i class="fas fa-filter" aria-hidden="true"></i>
+            Apply Filters
+        </button>
+        <a href="/search" class="btn-modern btn-outline btn-compact">
+            <i class="fas fa-redo" aria-hidden="true"></i>
+            Reset
+        </a>
+    </div>
 </form>
 
 <!-- Search Results Section -->

@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <h1>
+        <i class="fas fa-info-circle" aria-hidden="true"></i>
+        About AutoSolo
+    </h1>
+    <p>Connecting car buyers and sellers in the digital age</p>
+</div>
+
+<!-- About Content -->
+<section class="content-section" aria-labelledby="about-heading">
+    <div class="container">
+        <div class="content-card">
+            <div class="content-body">
+
+                <h2 id="about-heading">About AutoSolo</h2>
+
+                <p>Welcome to <strong>AutoSolo</strong>, your trusted partner in the automotive marketplace. Founded in 2025, AutoSolo has revolutionized the way people buy and sell vehicles by creating a seamless, secure, and user-friendly platform that connects car enthusiasts, dealers, and everyday drivers.</p>
+
+                <h3>Our Mission</h3>
+
+                <p>To democratize the automotive marketplace by providing a transparent, efficient, and trustworthy platform where buyers and sellers can connect directly, eliminating unnecessary intermediaries and reducing costs for everyone involved.</p>
+
+                <h3>Our Story</h3>
+
+                <p>AutoSolo was born from the frustration of traditional car buying and selling processes. We recognized that in an increasingly digital world, the automotive industry was still relying on outdated methods that were time-consuming, expensive, and often lacked transparency.</p>
+
+                <p>Our founders, a team of automotive enthusiasts and technology experts, set out to change this. After extensive research and development, AutoSolo launched as a comprehensive platform that combines cutting-edge technology with deep automotive expertise.</p>
+
+                <h3>What Sets Us Apart</h3>
+
+                <h4>🔍 Advanced Search & Filtering</h4>
+                <p>Our intelligent search engine allows users to find exactly what they're looking for with precision filters for make, model, year, price, mileage, and more.</p>
+
+                <h4>🛡️ Verified Listings</h4>
+                <p>We implement rigorous verification processes to ensure the authenticity of listings and protect both buyers and sellers from fraudulent activities.</p>
+
+                <h4>💬 Direct Communication</h4>
+                <p>Our integrated messaging system enables direct communication between buyers and sellers, facilitating smooth transactions and negotiations.</p>
+
+                <h4>📊 Market Insights</h4>
+                <p>Access to real-time market data and pricing trends to help users make informed decisions.</p>
+
+                <h4>🚗 Comprehensive Vehicle Database</h4>
+                <p>One of the most extensive vehicle databases in the industry, covering everything from classic cars to the latest electric vehicles.</p>
+
+                <h3>Our Values</h3>
+
+                <div class="values-grid">
+                    <div class="value-item">
+                        <div class="value-icon">
+                            <i class="fas fa-handshake" aria-hidden="true"></i>
+                        </div>
+                        <h4>Trust</h4>
+                        <p>Building trust through transparency, honesty, and reliability in every interaction.</p>
+                    </div>
+
+                    <div class="value-item">
+                        <div class="value-icon">
+                            <i class="fas fa-innovation" aria-hidden="true"></i>
+                        </div>
+                        <h4>Innovation</h4>
+                        <p>Continuously improving our platform with the latest technology and user feedback.</p>
+                    </div>
+
+                    <div class="value-item">
+                        <div class="value-icon">
+                            <i class="fas fa-users" aria-hidden="true"></i>
+                        </div>
+                        <h4>Community</h4>
+                        <p>Fostering a community of car enthusiasts who share knowledge and passion.</p>
+                    </div>
+
+                    <div class="value-item">
+                        <div class="value-icon">
+                            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                        </div>
+                        <h4>Security</h4>
+                        <p>Protecting user data and ensuring secure transactions at all times.</p>
+                    </div>
+                </div>
+
+                <h3>Our Team</h3>
+
+                <p>AutoSolo is powered by a diverse team of automotive experts, software engineers, customer service professionals, and business strategists who are all passionate about revolutionizing the automotive industry.</p>
+
+                <p>Our team combines decades of experience in both traditional automotive sales and cutting-edge technology development to create a platform that serves the needs of modern car buyers and sellers.</p>
+
+                <h3>Our Impact</h3>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">10,000+</div>
+                        <div class="stat-label">Cars Listed</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">5,000+</div>
+                        <div class="stat-label">Happy Customers</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Countries Served</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">99.9%</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                </div>
+
+                <h3>Get in Touch</h3>
+
+                <p>Have questions about AutoSolo? Want to share feedback or suggestions? We'd love to hear from you!</p>
+
+                <div class="contact-cta">
+                    <a href="/contact" class="btn-modern btn-primary">
+                        <i class="fas fa-envelope" aria-hidden="true"></i>
+                        Contact Us
+                    </a>
+                    <a href="/support" class="btn-modern btn-outline">
+                        <i class="fas fa-question-circle" aria-hidden="true"></i>
+                        Get Support
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-xl);
+    margin: var(--spacing-2xl) 0;
+}
+
+.value-item {
+    text-align: center;
+    padding: var(--spacing-xl);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    transition: all var(--transition-base);
+}
+
+.value-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+}
+
+.value-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--spacing-md);
+    background: linear-gradient(135deg, var(--accent-light) 0%, rgba(245, 158, 11, 0.2) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-2xl);
+    color: var(--accent);
+}
+
+.value-item h4 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-sm);
+    color: var(--gray-900);
+}
+
+.value-item p {
+    color: var(--gray-700);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-lg);
+    margin: var(--spacing-2xl) 0;
+    text-align: center;
+}
+
+.stat-item {
+    padding: var(--spacing-lg);
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--gray-200);
+}
+
+.stat-number {
+    font-size: var(--font-size-3xl);
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: var(--spacing-xs);
+}
+
+.stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.contact-cta {
+    display: flex;
+    gap: var(--spacing-lg);
+    justify-content: center;
+    margin-top: var(--spacing-xl);
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .values-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .contact-cta {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+</style>
+{% endblock %}

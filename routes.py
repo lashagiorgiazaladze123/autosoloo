@@ -2,6 +2,7 @@ from app import app, db
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.utils import secure_filename
+from sqlalchemy import or_
 from models import User, Car
 import os
 import json
@@ -31,7 +32,13 @@ def index():
 @app.route('/api/get-models/<make>')
 def get_models(make):
     """API endpoint to get models for a specific make"""
-    models = CAR_MAKES_MODELS.get(make, [])
+    normalized = (make or '').strip().lower()
+    models = []
+    if normalized:
+        for key, value in CAR_MAKES_MODELS.items():
+            if key.lower() == normalized:
+                models = value
+                break
     return jsonify(models)
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -39,13 +46,20 @@ def search():
     query = {}
     if request.method == 'POST':
         # Collect all filters from form
-        query['make'] = request.form.get('make')
-        query['model'] = request.form.get('model')
+        make_text = request.form.get('make', '').strip()
+        make_select = request.form.get('make_select', '').strip()
+        query['make'] = make_select or make_text
+
+        model_text = request.form.get('model', '').strip()
+        model_select = request.form.get('model_select', '').strip()
+        query['model'] = model_select or model_text
         query['min_year'] = request.form.get('min_year')
         query['max_year'] = request.form.get('max_year')
         query['min_price'] = request.form.get('min_price')
         query['max_price'] = request.form.get('max_price')
         query['engine'] = request.form.get('engine')
+        query['engine_liters'] = [value for value in request.form.getlist('engine_liters') if value]
+        query['engine_cylinders'] = [value for value in request.form.getlist('engine_cylinders') if value]
         query['min_mileage'] = request.form.get('min_mileage')
         query['max_mileage'] = request.form.get('max_mileage')
         query['category'] = request.form.get('category')
@@ -59,7 +73,8 @@ def search():
         query['colors'] = request.form.getlist('colors')
         query['interior_material'] = request.form.get('interior_material')
         query['interior_colors'] = request.form.getlist('interior_colors')
-        query['fuel_type'] = request.form.get('fuel_type')
+        query['fuel_type'] = (request.form.get('fuel_type') or '').strip()
+        query['mileage_unit'] = request.form.get('mileage_unit')
 
     # Build query
     cars_query = Car.query
@@ -76,7 +91,17 @@ def search():
     if query.get('max_price'):
         cars_query = cars_query.filter(Car.price <= float(query['max_price']))
     if query.get('engine'):
-        cars_query = cars_query.filter(Car.engine.ilike(f"%{query['engine']}%"))
+        engine_pattern = f"%{query['engine']}%"
+        cars_query = cars_query.filter(
+            or_(
+                Car.engine_liters.ilike(engine_pattern),
+                Car.engine_cylinders.ilike(engine_pattern)
+            )
+        )
+    if query.get('engine_liters'):
+        cars_query = cars_query.filter(Car.engine_liters == query['engine_liters'])
+    if query.get('engine_cylinders'):
+        cars_query = cars_query.filter(Car.engine_cylinders == query['engine_cylinders'])
     if query.get('min_mileage'):
         cars_query = cars_query.filter(Car.mileage >= int(query['min_mileage']))
     if query.get('max_mileage'):
@@ -106,6 +131,10 @@ def search():
         cars_query = cars_query.filter(Car.interior_material == query['interior_material'])
     if query.get('interior_colors'):
         cars_query = cars_query.filter(Car.interior_color.in_(query['interior_colors']))
+    if query.get('fuel_type'):
+        cars_query = cars_query.filter(Car.fuel_type == query['fuel_type'])
+    if query.get('mileage_unit'):
+        cars_query = cars_query.filter(Car.mileage_unit == query['mileage_unit'])
 
     cars = cars_query.all()
     return render_template(
@@ -117,10 +146,15 @@ def search():
         interior_material_options=INTERIOR_MATERIALS,
         fuel_types=FUEL_TYPES,
         gearbox_options=GEARBOX_OPTIONS,
+        steering_options=STEERING_OPTIONS,
         drive_options=DRIVE_OPTIONS,
         door_options=DOORS_OPTIONS,
         categories=CATEGORIES,
         mileage_unit_options=MILEAGE_UNIT_OPTIONS,
+        engine_liters_options=ENGINE_LITERS,
+        engine_cylinders_options=ENGINE_CYLINDERS,
+        makes=sorted(CAR_MAKES_MODELS.keys()),
+        all_models=sorted({model for models in CAR_MAKES_MODELS.values() for model in models}),
         selected_filters=query
     )
 @app.route('/car/<int:car_id>')
@@ -149,6 +183,8 @@ def upload():
         engine_liters = request.form.get('engine_liters', '')
         engine_cylinders = request.form.get('engine_cylinders', '')
         fuel_type = request.form.get('fuel_type', '')
+        battery_capacity = request.form.get('battery_capacity', '').strip()
+        range_km = request.form.get('range_km', '').strip()
         mileage_value = request.form.get('mileage', '0')
         mileage_unit = request.form.get('mileage_unit', 'km')
         category = request.form.get('category', '')
@@ -186,6 +222,11 @@ def upload():
 
         mileage_int = int(round(mileage_float * 1.60934)) if mileage_unit == 'mi' else int(round(mileage_float))
 
+        # Validate electric specific data
+        if fuel_type == 'Electric' and not (battery_capacity or range_km):
+            flash('Please provide at least Battery Capacity or Range for electric cars.')
+            return redirect(url_for('upload'))
+
         # Create car object
         car = Car(
             make=make,
@@ -195,6 +236,8 @@ def upload():
             engine_liters=engine_liters,
             engine_cylinders=engine_cylinders,
             fuel_type=fuel_type,
+            battery_capacity=battery_capacity,
+            range_km=range_km,
             mileage=mileage_int,
             mileage_unit=mileage_unit,
             category=category,
@@ -461,3 +504,31 @@ def toggle_favorite(car_id):
         current_user.add_favorite(car)
         db.session.commit()
         return {'status': 'added', 'favorited': True}, 200
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+@app.route('/cookies')
+def cookies():
+    return render_template('cookies.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/support')
+def support():
+    return render_template('support.html')
+
+@app.route('/help')
+def help():
+    return render_template('help.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')

@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <h1>
+        <i class="fas fa-question-circle" aria-hidden="true"></i>
+        Help Center
+    </h1>
+    <p>Find answers to common questions and get the help you need</p>
+</div>
+
+<!-- Help Center Content -->
+<section class="content-section" aria-labelledby="help-heading">
+    <div class="container">
+        <div class="content-card">
+            <div class="content-body">
+
+                <h2 id="help-heading">How can we help you today?</h2>
+
+                <p>Find quick answers to common questions about buying, selling, and using AutoSolo. Can't find what you're looking for? <a href="/contact">Contact our support team</a>.</p>
+
+                <!-- Search Bar -->
+                <div class="help-search">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon" aria-hidden="true"></i>
+                        <input type="text" placeholder="Search for help..." class="search-input" id="helpSearch">
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="#getting-started" class="action-card">
+                        <i class="fas fa-rocket" aria-hidden="true"></i>
+                        <h3>Getting Started</h3>
+                        <p>New to AutoSolo? Learn the basics</p>
+                    </a>
+                    <a href="#buying-guide" class="action-card">
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        <h3>Buying Guide</h3>
+                        <p>Tips for finding your perfect car</p>
+                    </a>
+                    <a href="#selling-guide" class="action-card">
+                        <i class="fas fa-dollar-sign" aria-hidden="true"></i>
+                        <h3>Selling Guide</h3>
+                        <p>How to sell your car successfully</p>
+                    </a>
+                    <a href="#account-help" class="action-card">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                        <h3>Account & Profile</h3>
+                        <p>Manage your AutoSolo account</p>
+                    </a>
+                </div>
+
+                <!-- FAQ Sections -->
+                <div class="faq-sections">
+
+                    <section id="getting-started" class="faq-section">
+                        <h3><i class="fas fa-rocket" aria-hidden="true"></i> Getting Started</h3>
+
+                        <div class="faq-item">
+                            <h4>How do I create an account?</h4>
+                            <p>To create an account, click the "Register" button in the top navigation. You'll need to provide a valid email address and create a secure password. We recommend using a strong password with a mix of letters, numbers, and special characters.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>Is AutoSolo free to use?</h4>
+                            <p>Yes! Creating an account and browsing car listings is completely free. We only charge fees for premium features or verified dealer accounts.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>How do I verify my account?</h4>
+                            <p>After registering, you'll receive a verification email. Click the link in the email to verify your account. If you don't see the email, check your spam folder or contact support.</p>
+                        </div>
+                    </section>
+
+                    <section id="buying-guide" class="faq-section">
+                        <h3><i class="fas fa-shopping-cart" aria-hidden="true"></i> Buying a Car</h3>
+
+                        <div class="faq-item">
+                            <h4>How do I search for cars?</h4>
+                            <p>Use our advanced search filters on the main page. You can filter by make, model, year, price range, mileage, fuel type, and many other criteria. Save your favorite searches for quick access later.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>What should I check before buying?</h4>
+                            <p>Always inspect the vehicle in person, check the vehicle's history report, verify all documentation, and consider having a trusted mechanic perform a pre-purchase inspection. Never send money without seeing the car first.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>How do I contact a seller?</h4>
+                            <p>Click on any car listing to view details, then use the contact information provided by the seller. Always communicate through official channels and never share sensitive personal information.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>Is my purchase protected?</h4>
+                            <p>AutoSolo facilitates connections between buyers and sellers but doesn't directly handle transactions. We recommend using secure payment methods and meeting in public places for inspections.</p>
+                        </div>
+                    </section>
+
+                    <section id="selling-guide" class="faq-section">
+                        <h3><i class="fas fa-dollar-sign" aria-hidden="true"></i> Selling Your Car</h3>
+
+                        <div class="faq-item">
+                            <h4>How do I list my car for sale?</h4>
+                            <p>Create an account, then click "Sell Your Car" in the navigation. Fill out the detailed form with accurate information about your vehicle, including photos, specifications, and pricing. High-quality photos significantly increase your chances of selling quickly.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>How much should I price my car?</h4>
+                            <p>Research similar vehicles in your area using our marketplace data. Consider factors like mileage, condition, features, and local market demand. We provide pricing insights to help you set competitive prices.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>What information do I need to provide?</h4>
+                            <p>Provide complete and accurate details including: make, model, year, mileage, condition, features, price, location, and contact information. The more detailed your listing, the better your chances of attracting serious buyers.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>How do I handle inquiries from buyers?</h4>
+                            <p>Respond promptly to all inquiries. Be prepared to answer questions about the vehicle's condition, history, and availability. Schedule viewings at convenient times and locations.</p>
+                        </div>
+                    </section>
+
+                    <section id="account-help" class="faq-section">
+                        <h3><i class="fas fa-user" aria-hidden="true"></i> Account & Profile</h3>
+
+                        <div class="faq-item">
+                            <h4>How do I edit my profile?</h4>
+                            <p>Go to your Profile page and click "Edit Profile". You can update your personal information, contact details, and account preferences.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>How do I change my password?</h4>
+                            <p>Visit your Profile page and select "Change Password". You'll need to enter your current password and choose a new secure password.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>How do I delete my account?</h4>
+                            <p>If you need to delete your account, please contact our support team. We'll help you through the process and ensure all your data is properly removed.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>How do I report a problem?</h4>
+                            <p>Use the "Contact Us" form or email our support team directly. Include as much detail as possible about the issue you're experiencing.</p>
+                        </div>
+                    </section>
+
+                    <section id="safety-security" class="faq-section">
+                        <h3><i class="fas fa-shield-alt" aria-hidden="true"></i> Safety & Security</h3>
+
+                        <div class="faq-item">
+                            <h4>How does AutoSolo protect my data?</h4>
+                            <p>We use industry-standard encryption, secure servers, and regular security audits to protect your personal information. For more details, see our Privacy Policy.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>What should I do if I suspect fraud?</h4>
+                            <p>Immediately report suspicious activity to our support team. Don't share personal information with unverified users, and never send money without proper verification.</p>
+                        </div>
+
+                        <div class="faq-item">
+                            <h4>Are transactions secure?</h4>
+                            <p>While we don't process payments directly, we recommend using secure payment methods and meeting in safe, public locations for vehicle inspections and transfers.</p>
+                        </div>
+                    </section>
+
+                </div>
+
+                <!-- Contact Support -->
+                <div class="support-cta">
+                    <h3>Still need help?</h3>
+                    <p>Our support team is here to help you with any questions or issues.</p>
+                    <div class="cta-buttons">
+                        <a href="/contact" class="btn-modern btn-primary">
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                            Contact Support
+                        </a>
+                        <a href="/support" class="btn-modern btn-outline">
+                            <i class="fas fa-life-ring" aria-hidden="true"></i>
+                            View Support Center
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.help-search {
+    margin: var(--spacing-2xl) 0;
+    max-width: 600px;
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    margin: var(--spacing-2xl) 0;
+}
+
+.action-card {
+    display: block;
+    padding: var(--spacing-xl);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    text-decoration: none;
+    color: var(--gray-900);
+    transition: all var(--transition-base);
+    text-align: center;
+}
+
+.action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+    background: var(--white);
+}
+
+.action-card i {
+    font-size: var(--font-size-3xl);
+    color: var(--accent);
+    margin-bottom: var(--spacing-md);
+    display: block;
+}
+
+.action-card h3 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-sm);
+}
+
+.action-card p {
+    color: var(--gray-600);
+    font-size: var(--font-size-sm);
+    margin: 0;
+}
+
+.faq-sections {
+    margin-top: var(--spacing-3xl);
+}
+
+.faq-section {
+    margin-bottom: var(--spacing-3xl);
+    padding-bottom: var(--spacing-2xl);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.faq-section:last-child {
+    border-bottom: none;
+}
+
+.faq-section h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-xl);
+}
+
+.faq-section h3 i {
+    color: var(--accent);
+}
+
+.faq-item {
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: var(--gray-50);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--accent);
+}
+
+.faq-item h4 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--gray-900);
+    font-size: var(--font-size-base);
+}
+
+.faq-item p {
+    margin: 0;
+    color: var(--gray-700);
+    line-height: 1.6;
+}
+
+.support-cta {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+    margin-top: var(--spacing-3xl);
+}
+
+.support-cta h3 {
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-md);
+}
+
+.support-cta p {
+    color: var(--gray-600);
+    margin-bottom: var(--spacing-xl);
+}
+
+.cta-buttons {
+    display: flex;
+    gap: var(--spacing-lg);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .action-card {
+        padding: var(--spacing-lg);
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('helpSearch');
+    const faqItems = document.querySelectorAll('.faq-item');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+
+            faqItems.forEach(item => {
+                const question = item.querySelector('h4').textContent.toLowerCase();
+                const answer = item.querySelector('p').textContent.toLowerCase();
+
+                if (question.includes(query) || answer.includes(query) || query === '') {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Show/hide sections based on visible items
+            document.querySelectorAll('.faq-section').forEach(section => {
+                const visibleItems = section.querySelectorAll('.faq-item[style*="block"]');
+                if (visibleItems.length === 0 && query !== '') {
+                    section.style.display = 'none';
+                } else {
+                    section.style.display = 'block';
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
