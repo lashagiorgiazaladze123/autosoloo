@@ -81,6 +81,8 @@ def ensure_schema(app=None, db=None, verbose=True):
     add_column('contact_number', 'ALTER TABLE car ADD COLUMN contact_number TEXT', "Adding contact_number column...")
     add_column('mileage_unit', "ALTER TABLE car ADD COLUMN mileage_unit TEXT DEFAULT 'km'", "Adding mileage_unit column with default 'km'...")
     add_column('views', 'ALTER TABLE car ADD COLUMN views INTEGER DEFAULT 0', "Adding views column with default 0...")
+    add_column('battery_capacity', 'ALTER TABLE car ADD COLUMN battery_capacity TEXT', "Adding battery_capacity column for electric cars...")
+    add_column('range_km', 'ALTER TABLE car ADD COLUMN range_km TEXT', "Adding range_km column for electric cars...")
 
     if 'engine' in column_names and 'engine_liters' in column_names:
         if verbose:

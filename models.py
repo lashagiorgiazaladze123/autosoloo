@@ -54,6 +54,8 @@ class Car(db.Model):
     engine_liters = db.Column(db.String(32))  # e.g., '2.0L'
     engine_cylinders = db.Column(db.String(32))  # e.g., 'V6', '4-cylinder'
     fuel_type = db.Column(db.String(32))  # 'Gasoline', 'Diesel', 'Electric', etc.
+    battery_capacity = db.Column(db.String(64))  # e.g., '75 kWh' for electric cars
+    range_km = db.Column(db.String(64))  # e.g., '400 km' for electric cars
     mileage = db.Column(db.Integer)
     mileage_unit = db.Column(db.String(8), default='km')  # 'km' or 'mi'
     category = db.Column(db.String(64))  # e.g., 'Sedan'

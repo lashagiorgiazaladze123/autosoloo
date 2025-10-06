@@ -372,6 +372,8 @@ def edit_car(car_id):
         car.engine_liters = request.form.get('engine_liters', '')
         car.engine_cylinders = request.form.get('engine_cylinders', '')
         car.fuel_type = request.form.get('fuel_type', '')
+        car.battery_capacity = request.form.get('battery_capacity', '').strip()
+        car.range_km = request.form.get('range_km', '').strip()
         car.category = request.form.get('category', '')
         car.gearbox = request.form.get('gearbox', '')
         car.steering = request.form.get('steering', '')
