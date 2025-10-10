@@ -1,154 +1,69 @@
 {% extends 'base.html' %}
-
 {% block scripts %}
 {{ super() }}
+<script id="make-model-data" type="application/json">{{ CAR_MAKES_MODELS|tojson }}</script>
 <script>
-let searchModelDefaultOptions = '';
-
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const makeInput = document.getElementById('make-input');
     const modelInput = document.getElementById('model-input');
     const modelDatalist = document.getElementById('model-options');
+    const dataScript = document.getElementById('make-model-data');
 
-    if (modelDatalist && !searchModelDefaultOptions) {
-        searchModelDefaultOptions = modelDatalist.innerHTML;
+    if (!makeInput || !modelInput || !modelDatalist || !dataScript) return;
+
+    let modelData = {};
+    try {
+        modelData = JSON.parse(dataScript.textContent || '{}');
+    } catch (err) {
+        console.error('Failed to parse make/model data', err);
     }
 
-    if (!makeInput || !modelInput || !modelDatalist) {
-        console.error('Required elements not found:', { makeInput, modelInput, modelDatalist });
-        return;
-    }
+    const normalizedMap = Object.entries(modelData).reduce((acc, [make, models]) => {
+        acc[make.trim().toLowerCase()] = { make: make.trim(), models };
+        return acc;
+    }, {});
 
-    console.log('Make-model filtering initialized');
+    const allModels = Object.values(modelData).flat();
 
-    // Store default options
-    const defaultModelValues = Array.from(modelDatalist.options).map(option => option.value);
-
-    function populateDatalist(values) {
-        console.log('Populating datalist with', values.length, 'options');
+    const populateModels = (models = []) => {
         modelDatalist.innerHTML = '';
-        values.forEach(value => {
+        const list = models.length ? models : allModels;
+
+        list.forEach(model => {
             const option = document.createElement('option');
-            option.value = value;
+            option.value = model;
             modelDatalist.appendChild(option);
         });
-    }
 
-    function populateModels(makeValue, clearValue = true) {
-        const make = (makeValue || '').trim();
-        console.log('populateModels called with make:', make, 'clearValue:', clearValue);
-
-        if (clearValue) {
+        // Reset model input if it’s not in the new list
+        if (modelInput.value && !list.includes(modelInput.value)) {
             modelInput.value = '';
         }
+    };
 
-        if (!make) {
-            console.log('No make specified, showing all models');
-            populateDatalist(defaultModelValues);
-            modelInput.disabled = false;
-            modelInput.placeholder = 'Select or type model';
-            return;
+    const updateModels = (makeValue) => {
+        const makeKey = (makeValue || '').trim().toLowerCase();
+        const normalized = normalizedMap[makeKey];
+
+        if (normalized) {
+            console.log('[Search] Make selected:', normalized.make, '| models available:', normalized.models.length);
+        } else if (makeKey) {
+            console.warn('[Search] No models found for make input:', makeValue);
+        } else {
+            console.log('[Search] Make cleared. Resetting to all models.');
         }
 
-        modelInput.disabled = true;
-        modelInput.placeholder = 'Loading models…';
+        populateModels(normalized ? normalized.models : []);
+    };
 
-        console.log('Fetching models for make:', make);
-        fetch(`/api/get-models/${encodeURIComponent(make)}`)
-            .then(response => {
-                console.log('API response status:', response.status);
-                return response.json();
-            })
-            .then(models => {
-                console.log('Received models:', models);
-                if (Array.isArray(models) && models.length) {
-                    populateDatalist(models);
-                    modelInput.placeholder = 'Select or type model';
-                } else {
-                    populateDatalist([]);
-                    modelInput.placeholder = 'No models available';
-                }
+    // Initial population if make already selected
+    updateModels(makeInput.value);
 
-                modelInput.disabled = false;
-            })
-            .catch(error => {
-                console.error('Failed to load models for make', make, error);
-                populateDatalist(defaultModelValues);
-                modelInput.disabled = false;
-                modelInput.placeholder = 'Select or type model';
-            });
-    }
-
-    // Listen for multiple events to ensure filtering works
-    makeInput.addEventListener('input', function(e) {
-        console.log('Make input event fired:', e.type, 'value:', e.target.value);
-        populateModels(e.target.value, true);
-    });
-
-    makeInput.addEventListener('change', function(e) {
-        console.log('Make change event fired:', e.type, 'value:', e.target.value);
-        populateModels(e.target.value, true);
-    });
-
-    makeInput.addEventListener('blur', function(e) {
-        console.log('Make blur event fired, value:', e.target.value);
-        // Small delay to allow datalist selection to complete
-        setTimeout(() => populateModels(e.target.value, false), 100);
-    });
-
-    // Also listen for when the model input is focused to ensure current make is applied
-    modelInput.addEventListener('focus', function() {
-        const currentMake = makeInput.value.trim();
-        if (currentMake) {
-            console.log('Model input focused, re-applying make filter for:', currentMake);
-            populateModels(currentMake, false);
-        }
-    });
-
-    // Add a click listener to the model input as well - this is what the user triggers
-    modelInput.addEventListener('click', function() {
-        const currentMake = makeInput.value.trim();
-        if (currentMake) {
-            console.log('Model input clicked, ensuring make filter is applied for:', currentMake);
-            // Force immediate update
-            populateModels(currentMake, false);
-        }
-    });
-
-    // Add mousedown event as well for better responsiveness
-    modelInput.addEventListener('mousedown', function() {
-        const currentMake = makeInput.value.trim();
-        if (currentMake) {
-            console.log('Model input mousedown, ensuring make filter is applied for:', currentMake);
-            populateModels(currentMake, false);
-        }
-    });
-
-    // Monitor the make input for any changes using a mutation observer as backup
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
-                const newValue = makeInput.value.trim();
-                if (newValue) {
-                    console.log('Make input value changed via mutation observer:', newValue);
-                    populateModels(newValue, false);
-                }
-            }
-        });
-    });
-    
-    observer.observe(makeInput, {
-        attributes: true,
-        attributeFilter: ['value']
-    });
-
-    // Initialize if make already has a value
-    if (makeInput.value) {
-        console.log('Make has initial value:', makeInput.value);
-        populateModels(makeInput.value, false);
-    }
+    makeInput.addEventListener('input', () => updateModels(makeInput.value));
+    makeInput.addEventListener('change', () => updateModels(makeInput.value));
 });
 </script>
+
 {% endblock %}
 
 {% block content %}
@@ -322,6 +237,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 <option value="No"></option>
             </datalist>
         </div>
+        <div class="form-group">
+            <label>Custom Clearance</label>
+            <input type="text" name="custom_clearance" list="custom-clearance-options" value="{{ selected_filters.custom_clearance or '' }}" class="compact-input" autocomplete="off">
+            <datalist id="custom-clearance-options">
+                <option value="Yes"></option>
+                <option value="No"></option>
+            </datalist>
+        </div>
         <div class="form-group full-width">
             <label>Additional Functions</label>
             <div class="features-grid compact">
@@ -333,15 +256,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 {% endfor %}
             </div>
         </div>
-        <div class="form-group full-width">
-            <label>Car Color</label>
-            <div class="multi-select-group">
-                <select name="colors" multiple class="compact-input multi-select" size="4">
-                    {% for color in color_options %}
-                    <option value="{{ color }}" {% if selected_filters.colors and color in selected_filters.colors %}selected{% endif %}>{{ color }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+        <div class="form-group">
+            <label for="color-filter">Car Color</label>
+            <select id="color-filter" name="color" class="form-select">
+                <option value="">Any color</option>
+                {% for color in color_options %}
+                <option value="{{ color }}" {% if selected_filters.color == color %}selected{% endif %}>{{ color }}</option>
+                {% endfor %}
+            </select>
         </div>
         <div class="form-group">
             <label>Interior Material</label>

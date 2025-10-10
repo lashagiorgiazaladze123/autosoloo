@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AutoSolo - Find your perfect car from our premium marketplace">
+    <meta name="description" content="GeoSolo - Find your perfect car from our premium marketplace">
     <meta name="theme-color" content="#f59e0b">
-    <title>{% block title %}AutoSolo - Premium Car Marketplace{% endblock %}</title>
+    <title>{% block title %}GeoSolo - Premium Car Marketplace{% endblock %}</title>
     
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -19,9 +19,11 @@
     <header class="header-modern" role="banner">
         <div class="nav-container">
             <!-- Brand Logo with Icon Fallback -->
-            <a href="/" class="nav-brand" aria-label="AutoSolo Home">
-                <img src="{{ url_for('static', filename='logo.png') }}" alt="AutoSolo Logo" class="brand-logo">
+            <a href="/" class="nav-brand" aria-label="GeoSolo Home">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="GeoSolo Logo" class="brand-logo">
             </a>
+
+            <div id="google_translate_element" class="nav-translate"></div>
             
             <!-- Mobile Menu Toggle -->
             <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
@@ -93,11 +95,11 @@
                 <!-- Brand Section -->
                 <div class="footer-brand">
                     <div class="footer-brand-logo">
-                        <h3>AutoSolo</h3>
+                        <h3>GeoSolo</h3>
                     </div>
                     <p>Your trusted premium car marketplace. Find your dream car with confidence and ease.</p>
                     <div class="social-links">
-                        <a href="#" aria-label="Facebook" title="Facebook">
+                        <a href="https://www.facebook.com/profile.php?id=61577957822735" aria-label="Facebook" title="Facebook" target="_blank" rel="noopener">
                             <i class="fab fa-facebook-f" aria-hidden="true"></i>
                         </a>
                         
@@ -106,6 +108,7 @@
                         </a>
                         
                     </div>
+                    <span class="translate-attribution" aria-hidden="true">Powered by Google Translate</span>
                 </div>
                 
                 <!-- Quick Links -->
@@ -148,7 +151,7 @@
         <!-- Footer Bottom -->
         <div class="footer-bottom">
             <div class="footer-container">
-                <p>&copy; 2025 AutoSolo. All rights reserved.</p>
+                <p>&copy; 2025 GeoSolo. All rights reserved.</p>
                 <div class="footer-legal">
                     <a href="/privacy">Privacy</a>
                     <a href="/terms">Terms</a>
@@ -206,5 +209,17 @@
             lastScroll = currentScroll;
         });
     </script>
+
+    {% block scripts %}
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,ka,pl,ru,uk,de,es,fr,it,tr'
+            }, 'google_translate_element');
+        }
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    {% endblock %}
 </body>
 </html>

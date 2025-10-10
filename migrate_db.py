@@ -79,10 +79,12 @@ def ensure_schema(app=None, db=None, verbose=True):
     add_column('engine_cylinders', 'ALTER TABLE car ADD COLUMN engine_cylinders TEXT', "Adding engine_cylinders column...")
     add_column('fuel_type', 'ALTER TABLE car ADD COLUMN fuel_type TEXT', "Adding fuel_type column...")
     add_column('contact_number', 'ALTER TABLE car ADD COLUMN contact_number TEXT', "Adding contact_number column...")
+    add_column('location', 'ALTER TABLE car ADD COLUMN location TEXT', "Adding location column...")
     add_column('mileage_unit', "ALTER TABLE car ADD COLUMN mileage_unit TEXT DEFAULT 'km'", "Adding mileage_unit column with default 'km'...")
     add_column('views', 'ALTER TABLE car ADD COLUMN views INTEGER DEFAULT 0', "Adding views column with default 0...")
     add_column('battery_capacity', 'ALTER TABLE car ADD COLUMN battery_capacity TEXT', "Adding battery_capacity column for electric cars...")
     add_column('range_km', 'ALTER TABLE car ADD COLUMN range_km TEXT', "Adding range_km column for electric cars...")
+    add_column('custom_clearance', 'ALTER TABLE car ADD COLUMN custom_clearance BOOLEAN', "Adding custom_clearance column...")
 
     if 'engine' in column_names and 'engine_liters' in column_names:
         if verbose:

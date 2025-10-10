@@ -51,6 +51,7 @@ class Car(db.Model):
     year = db.Column(db.Integer)
     price = db.Column(db.Float)
     contact_number = db.Column(db.String(32))
+    location = db.Column(db.String(128))
     engine_liters = db.Column(db.String(32))  # e.g., '2.0L'
     engine_cylinders = db.Column(db.String(32))  # e.g., 'V6', '4-cylinder'
     fuel_type = db.Column(db.String(32))  # 'Gasoline', 'Diesel', 'Electric', etc.
@@ -65,6 +66,7 @@ class Car(db.Model):
     doors = db.Column(db.String(32))  # '2', '3', '4', '5', '>5'
     tech_inspection = db.Column(db.Boolean)
     catalyst = db.Column(db.Boolean)
+    custom_clearance = db.Column(db.Boolean)
     features = db.Column(db.Text)  # JSON list of features
     color = db.Column(db.String(64))
     interior_material = db.Column(db.String(64))

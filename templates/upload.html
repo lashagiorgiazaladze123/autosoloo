@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Upload Car - AutoSolo{% endblock %}
+{% block title %}Upload Car - GeoSolo{% endblock %}
 {% block content %}
 
 <!-- Upload Header -->
@@ -74,26 +74,6 @@
                 <input type="tel" id="contact_number" name="contact_number" placeholder="e.g., +1 555 123 4567" pattern="[+0-9\s-]{6,20}">
                 <span class="field-hint">Buyers will use this number to contact you</span>
             </div>
-            <div id="engineFields" class="engine-fields">
-                <div class="form-group">
-                    <label for="engine_liters">Engine Size</label>
-                    <select id="engine_liters" name="engine_liters" class="form-select">
-                        <option value="">Select Engine Size</option>
-                        {% for size in engine_liters %}
-                        <option value="{{ size }}">{{ size }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="engine_cylinders">Engine Type</label>
-                    <select id="engine_cylinders" name="engine_cylinders" class="form-select">
-                        <option value="">Select Engine Type</option>
-                        {% for type in engine_cylinders %}
-                        <option value="{{ type }}">{{ type }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
             <div id="electricFields" class="electric-fields hidden">
                 <div class="form-group">
                     <label for="battery_capacity">Battery Capacity (kWh) <span class="optional">(Optional)</span></label>
@@ -113,6 +93,26 @@
                     <option value="{{ fuel }}">{{ fuel }}</option>
                     {% endfor %}
                 </select>
+            </div>
+            <div id="engineFields" class="engine-fields">
+                <div class="form-group">
+                    <label for="engine_liters">Engine Size</label>
+                    <select id="engine_liters" name="engine_liters" class="form-select">
+                        <option value="">Select Engine Size</option>
+                        {% for size in engine_liters %}
+                        <option value="{{ size }}">{{ size }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="engine_cylinders">Engine Type</label>
+                    <select id="engine_cylinders" name="engine_cylinders" class="form-select">
+                        <option value="">Select Engine Type</option>
+                        {% for type in engine_cylinders %}
+                        <option value="{{ type }}">{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
             <div class="form-group">
                 <label for="mileage">Mileage (km)</label>
@@ -168,6 +168,22 @@
                     {% for option in doors_options %}
                     <option value="{{ option }}">{{ option }}</option>
                     {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tech_inspection">Tech Inspection</label>
+                <select id="tech_inspection" name="tech_inspection" class="form-select">
+                    <option value="">Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="custom_clearance">Custom Clearance</label>
+                <select id="custom_clearance" name="custom_clearance" class="form-select">
+                    <option value="">Select</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
                 </select>
             </div>
             <div class="form-group full-width">

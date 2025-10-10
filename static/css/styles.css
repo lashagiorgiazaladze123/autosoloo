@@ -347,7 +347,7 @@ body {
 }
 
 .brand-logo {
-    height: 60px;
+    height: 72px;
     width: auto;
 }
 
@@ -365,6 +365,62 @@ body {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
+}
+
+.nav-translate {
+    margin-left: auto;
+    margin-right: var(--spacing-md);
+    display: flex;
+    align-items: center;
+}
+
+.nav-translate .goog-te-gadget {
+    font-family: var(--font-primary) !important;
+    font-size: var(--font-size-xs) !important;
+    color: var(--gray-600) !important;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.nav-translate .goog-te-gadget-simple {
+    background: var(--white) !important;
+    border: 1px solid var(--gray-200) !important;
+    border-radius: var(--radius-full) !important;
+    padding: 0.25rem 0.55rem !important;
+    box-shadow: var(--shadow-sm) !important;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.nav-translate .goog-te-gadget-icon {
+    display: none !important;
+}
+
+.nav-translate .goog-te-combo {
+    border: none !important;
+    background: transparent !important;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: var(--font-size-xs);
+    outline: none;
+    cursor: pointer;
+}
+
+.nav-translate .goog-te-combo option {
+    color: var(--primary);
+}
+
+.nav-translate .goog-te-gadget span {
+    display: flex !important;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.translate-attribution {
+    color: var(--white);
+    font-size: var(--font-size-xs);
 }
 
 .nav-link {
@@ -2095,7 +2151,7 @@ input:hover, select:hover, textarea:hover {
 
 /* ===== LOGO IMAGE STYLING ===== */
 .brand-logo {
-    height: 56px;
+    height: 80px;
     width: auto;
     object-fit: contain;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
@@ -3197,9 +3253,13 @@ input:hover, select:hover, textarea:hover {
 }
 
 .seller-label {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-base);
     color: var(--success);
     margin: 0;
+}
+
+.seller-label .seller-link {
+    font-size: inherit;
 }
 
 /* Responsive Car Detail */

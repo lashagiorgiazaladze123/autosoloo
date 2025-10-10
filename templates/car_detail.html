@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}{{ car.make }} {{ car.model }} {{ car.year }} - AutoSolo{% endblock %}
+{% block title %}{{ car.make }} {{ car.model }} {{ car.year }} - GeoSolo{% endblock %}
 {% block content %}
 
 <!-- Breadcrumb Navigation -->
@@ -273,13 +273,11 @@
                             <i class="fas fa-phone" aria-hidden="true"></i>
                             {{ car.contact_number }}
                         </p>
-                        {% endif %}
                         <p class="seller-label">
-                            <i class="fas fa-eye" aria-hidden="true"></i>
-                            {{ car.views or 0 }} total views
+                            <i class="fab fa-facebook-square" aria-hidden="true"></i>
+                            <a href="https://www.facebook.com/profile.php?id=61577957822735" target="_blank" rel="noopener" class="seller-link">Seller on Facebook</a>
                         </p>
-                    </div>
-                </div>
+                        {% endif %}
             </div>
         </div>
     </div>

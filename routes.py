@@ -23,24 +23,47 @@ FEATURES_OPTIONS = [
     'Parking control', 'Adapted for disabled', 'Start-stop system', 'Sunroof',
     'Cruise control', 'Multi steering wheel', 'Alarm'
 ]
-
+# Add this temporary route to routes.py to test
+@app.route('/test-models')
+def test_models():
+    return jsonify({
+        "Toyota": CAR_MAKES_MODELS.get("Toyota", []),
+        "Status": "API Working"
+    })
 @app.route('/')
 def index():
     cars = Car.query.all()
     return render_template('index.html', cars=cars)
 
 @app.route('/api/get-models/<make>')
+@app.route('/api/get-models/<make>')
 def get_models(make):
     """API endpoint to get models for a specific make"""
+    app.logger.info(f"API called - make: {make}")
     normalized = (make or '').strip().lower()
     models = []
+    
     if normalized:
+        app.logger.info(f"Searching for normalized make: {normalized}")
         for key, value in CAR_MAKES_MODELS.items():
             if key.lower() == normalized:
                 models = value
+                app.logger.info(f"Found {len(models)} models for {make}")
                 break
+    
+    if not models:
+        app.logger.warning(f"No models found for make: {make}")
+    
     return jsonify(models)
 
+
+@app.route('/api/client-log', methods=['POST'])
+def client_log():
+    payload = request.get_json(silent=True) or {}
+    message = payload.get('message', 'client_log')
+    context = payload.get('context', {})
+    app.logger.info('[CLIENT] %s | %s', message, context)
+    return {'status': 'ok'}
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     query = {}
@@ -69,8 +92,9 @@ def search():
         query['doors'] = request.form.getlist('doors')  # multi
         query['tech_inspection'] = request.form.get('tech_inspection')
         query['catalyst'] = request.form.get('catalyst')
+        query['custom_clearance'] = request.form.get('custom_clearance')
         query['features'] = request.form.getlist('features')
-        query['colors'] = request.form.getlist('colors')
+        query['color'] = request.form.get('color')
         query['interior_material'] = request.form.get('interior_material')
         query['interior_colors'] = request.form.getlist('interior_colors')
         query['fuel_type'] = (request.form.get('fuel_type') or '').strip()
@@ -122,11 +146,14 @@ def search():
     if query.get('catalyst'):
         cat_bool = query['catalyst'] == 'Yes'
         cars_query = cars_query.filter(Car.catalyst == cat_bool)
+    if query.get('custom_clearance'):
+        cc_bool = query['custom_clearance'] == 'Yes'
+        cars_query = cars_query.filter(Car.custom_clearance == cc_bool)
     if query.get('features'):
         for feature in query['features']:
             cars_query = cars_query.filter(Car.features.contains(feature))
-    if query.get('colors'):
-        cars_query = cars_query.filter(Car.color.in_(query['colors']))
+    if query.get('color'):
+        cars_query = cars_query.filter(Car.color == query['color'])
     if query.get('interior_material'):
         cars_query = cars_query.filter(Car.interior_material == query['interior_material'])
     if query.get('interior_colors'):
@@ -137,6 +164,7 @@ def search():
         cars_query = cars_query.filter(Car.mileage_unit == query['mileage_unit'])
 
     cars = cars_query.all()
+    
     return render_template(
         'search.html',
         cars=cars,
@@ -155,6 +183,7 @@ def search():
         engine_cylinders_options=ENGINE_CYLINDERS,
         makes=sorted(CAR_MAKES_MODELS.keys()),
         all_models=sorted({model for models in CAR_MAKES_MODELS.values() for model in models}),
+        CAR_MAKES_MODELS=CAR_MAKES_MODELS,
         selected_filters=query
     )
 @app.route('/car/<int:car_id>')
@@ -194,6 +223,7 @@ def upload():
         doors = request.form.get('doors', '')
         tech_inspection_value = request.form.get('tech_inspection', '')
         catalyst_value = request.form.get('catalyst', '')
+        custom_clearance_value = request.form.get('custom_clearance', '')
         color = request.form.get('color', '')
         interior_material = request.form.get('interior_material', '')
         interior_color = request.form.get('interior_color', '')
@@ -203,6 +233,7 @@ def upload():
         # Convert to boolean
         tech_inspection = tech_inspection_value == 'Yes' if tech_inspection_value else False
         catalyst = catalyst_value == 'Yes' if catalyst_value else False
+        custom_clearance = custom_clearance_value == 'Yes' if custom_clearance_value else False
         
         # Convert numeric fields safely
         try:
@@ -247,6 +278,7 @@ def upload():
             doors=doors,
             tech_inspection=tech_inspection,
             catalyst=catalyst,
+            custom_clearance=custom_clearance,
             color=color,
             interior_material=interior_material,
             interior_color=interior_color,
@@ -382,13 +414,14 @@ def edit_car(car_id):
         
         tech_inspection_value = request.form.get('tech_inspection', '')
         catalyst_value = request.form.get('catalyst', '')
+        custom_clearance_value = request.form.get('custom_clearance', '')
         car.tech_inspection = tech_inspection_value == 'Yes' if tech_inspection_value else False
         car.catalyst = catalyst_value == 'Yes' if catalyst_value else False
+        car.custom_clearance = custom_clearance_value == 'Yes' if custom_clearance_value else False
         
         car.color = request.form.get('color', '')
         car.interior_material = request.form.get('interior_material', '')
         car.interior_color = request.form.get('interior_color', '')
-        car.description = request.form.get('description', '')
         car.contact_number = request.form.get('contact_number', '')
         
         # Update features
