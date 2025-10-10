@@ -99,6 +99,7 @@ def search():
         query['interior_colors'] = request.form.getlist('interior_colors')
         query['fuel_type'] = (request.form.get('fuel_type') or '').strip()
         query['mileage_unit'] = request.form.get('mileage_unit')
+        query['location'] = request.form.get('location', '').strip()
 
     # Build query
     cars_query = Car.query
@@ -162,6 +163,8 @@ def search():
         cars_query = cars_query.filter(Car.fuel_type == query['fuel_type'])
     if query.get('mileage_unit'):
         cars_query = cars_query.filter(Car.mileage_unit == query['mileage_unit'])
+    if query.get('location'):
+        cars_query = cars_query.filter(Car.location.ilike(f"%{query['location']}%"))
 
     cars = cars_query.all()
     
@@ -229,6 +232,7 @@ def upload():
         interior_color = request.form.get('interior_color', '')
         description = request.form.get('description', '')
         contact_number = request.form.get('contact_number', '')
+        location = request.form.get('location', '')
         
         # Convert to boolean
         tech_inspection = tech_inspection_value == 'Yes' if tech_inspection_value else False
@@ -284,6 +288,7 @@ def upload():
             interior_color=interior_color,
             description=description,
             contact_number=contact_number,
+            location=location,
             user_id=current_user.id
         )
         
@@ -423,6 +428,7 @@ def edit_car(car_id):
         car.interior_material = request.form.get('interior_material', '')
         car.interior_color = request.form.get('interior_color', '')
         car.contact_number = request.form.get('contact_number', '')
+        car.location = request.form.get('location', '')
         
         # Update features
         features = request.form.getlist('features')

@@ -116,6 +116,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 {% endfor %}
             </datalist>
         </div>
+        <div class="search-input-wrapper">
+            <label for="location-filter">Location</label>
+            <div class="input-with-select input-compact">
+                <i class="fas fa-map-marker-alt search-icon" aria-hidden="true"></i>
+                <input id="location-filter" type="text" name="location" placeholder="City, State" value="{{ selected_filters.location or '' }}" class="search-input compact-input" autocomplete="off">
+            </div>
+        </div>
     </div>
 
     <div class="filter-grid">
