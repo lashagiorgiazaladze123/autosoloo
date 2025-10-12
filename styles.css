@@ -1773,6 +1773,22 @@ input:hover, select:hover, textarea:hover {
         text-align: center;
     }
     
+    /* Hide translate widget in header on mobile, show in menu */
+    .nav-translate {
+        display: none;
+    }
+    
+    /* Add translate widget to mobile menu */
+    .nav-menu .nav-translate {
+        display: flex;
+        order: -1; /* Show at top of menu */
+        justify-content: center;
+        padding: var(--spacing-lg) 0;
+        border-bottom: 1px solid var(--gray-200);
+        margin-bottom: var(--spacing-lg);
+        width: 100%;
+    }
+    
     /* Hero Section */
     .hero-title {
         font-size: var(--font-size-3xl);
