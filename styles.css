@@ -1773,13 +1773,13 @@ input:hover, select:hover, textarea:hover {
         text-align: center;
     }
     
-    /* Hide translate widget in header on mobile, show in menu */
-    .nav-translate {
+    /* Hide translate widget in header on mobile */
+    .nav-container .nav-translate {
         display: none;
     }
     
-    /* Add translate widget to mobile menu */
-    .nav-menu .nav-translate {
+    /* Show translate widget in mobile menu when menu is active */
+    .nav-menu.active .nav-translate {
         display: flex;
         order: -1; /* Show at top of menu */
         justify-content: center;
