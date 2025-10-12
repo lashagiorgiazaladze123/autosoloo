@@ -204,6 +204,10 @@ def car_detail(car_id):
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
+    admin_emails = ['autosolo000@gmail.com', 'daxmarebaminda@gmail.com']
+    if current_user.email not in admin_emails:
+        flash('Only admins can upload cars.')
+        return redirect(url_for('index'))
     if request.method == 'POST':
         # Get required fields
         make = request.form.get('make', '')
@@ -503,7 +507,22 @@ def delete_car(car_id):
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        user = User(username=request.form['username'], email=request.form['email'])
+        username = request.form['username']
+        email = request.form['email']
+        
+        # Check if username already exists
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username already exists. Please choose a different username.')
+            return redirect(url_for('register'))
+        
+        # Check if email already exists
+        existing_email = User.query.filter_by(email=email).first()
+        if existing_email:
+            flash('Email already registered. Please use a different email address.')
+            return redirect(url_for('register'))
+        
+        user = User(username=username, email=email)
         user.set_password(request.form['password'])
         db.session.add(user)
         db.session.commit()

@@ -44,9 +44,11 @@
                 <a href="/favorites" class="nav-link" aria-label="Your favorites">
                     <i class="fas fa-heart" aria-hidden="true"></i> Favorites
                 </a>
+                {% if current_user.email in ['autosolo000@gmail.com', 'daxmarebaminda@gmail.com'] %}
                 <a href="/upload" class="nav-link" aria-label="Upload a car">
                     <i class="fas fa-upload" aria-hidden="true"></i> Upload Car
                 </a>
+                {% endif %}
                 <a href="/profile" class="nav-link" aria-label="Your profile">
                     <i class="fas fa-user" aria-hidden="true"></i> Profile
                 </a>
@@ -117,7 +119,9 @@
                     <ul>
                         <li><a href="/">Home</a></li>
                         <li><a href="/search">Browse Cars</a></li>
+                        {% if current_user.is_authenticated and current_user.email in ['autosolo000@gmail.com', 'daxmarebaminda@gmail.com'] %}
                         <li><a href="/upload">Sell Your Car</a></li>
+                        {% endif %}
                         <li><a href="/about">About Us</a></li>
                         <li><a href="/support">Support</a></li>
                     </ul>
